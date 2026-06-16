@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hire_up/screens/search_screen.dart';
+import 'package:hire_up/screens/A/search_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/widget.dart';
 
