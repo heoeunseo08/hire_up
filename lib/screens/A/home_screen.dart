@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:hire_up/controller/job_controller.dart';
 import 'package:hire_up/screens/A/search_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/widget.dart';
@@ -11,6 +14,34 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  JobController controller = JobController();
+  int selectIndex = 0;
+
+  List<String> sortTitles = ["최신순", "인기순", "급여순"];
+
+  @override
+  void initState() {
+    super.initState();
+    loadJob();
+  }
+
+  Future<void> loadJob() async {
+    await controller.jobs();
+    log("${controller.category}");
+    setState(() {});
+  }
+
+  void categoryChanged(int index) {
+    selectIndex = index;
+    controller.category = categoryText[index]['code'];
+    loadJob();
+  }
+
+  void sortChanged(String sort) {
+    controller.sort = sort;
+    loadJob();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +54,91 @@ class _HomeScreenState extends State<HomeScreen> {
             titleTexts(),
             SizedBox(height: 12),
             toSearchButton(),
+            SizedBox(height: 20),
+            categories(),
+            SizedBox(height: 30),
+            jobPosts(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget jobPosts() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "전체 공고",
+              style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
+            ),
+            PopupMenuButton<String>(
+              color: Colors.white,
+              offset: Offset(-6, 0),
+              // 위치 조절 가능
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+              iconColor: titleText,
+              iconSize: 35,
+              itemBuilder: (context) => sortTitles
+                  .map(
+                    (e) => PopupMenuItem(height:56,
+                      value: e,
+                      child: Text(
+                        e,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onSelected: (val) {
+                if (val == '최신순') sortChanged('latest');
+                if (val == '인기순') sortChanged('popular');
+                if (val == '급여순') sortChanged('salary');
+              },
+
+              child: Row(
+                children: [
+                  Text(
+                    controller.sort == 'latest'
+                        ? '최신순'
+                        : controller.sort == 'popular'
+                        ? '인기순'
+                        : '급여순',
+                  ),
+                  Icon(Icons.keyboard_arrow_down_rounded),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Container()
+      ],
+    );
+  }
+
+  Widget categories() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(
+          categoryText.length,
+          (index) => Padding(
+            padding: EdgeInsets.only(right: 10),
+            child: tag(
+              category: true,
+              text: categoryText[index]['label']!,
+              isSelect: selectIndex == index,
+              onTap: () => setState(() {
+                categoryChanged(index);
+              }),
+            ),
+          ),
         ),
       ),
     );
