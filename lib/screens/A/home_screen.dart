@@ -64,6 +64,69 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget postUi({
+    required String companyLogo,
+    required String companyName,
+    required String jobTitle,
+    required String location,
+    required String employmentType,
+    required String career,
+    required String salary,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Image.asset(companyLogo, width: 45),
+          SizedBox(width: 16),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                companyName,
+                style: TextStyle(
+                  color: titleText,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              Text(
+                jobTitle,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                "$location-$employmentType-$career",
+                style: TextStyle(
+                  color: subText,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                salary,
+                style: TextStyle(
+                  color: mainColor,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget jobPosts() {
     return Column(
       children: [
@@ -83,7 +146,8 @@ class _HomeScreenState extends State<HomeScreen> {
               iconSize: 35,
               itemBuilder: (context) => sortTitles
                   .map(
-                    (e) => PopupMenuItem(height:56,
+                    (e) => PopupMenuItem(
+                      height: 56,
                       value: e,
                       child: Text(
                         e,
@@ -117,7 +181,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        Container()
+        postUi(
+          companyLogo: "assets/images/company/naver.png",
+          companyName: "NAVER",
+          jobTitle: "Frontend 개발자",
+          location: "경기 성남",
+          employmentType: "정규직",
+          career: "경력 3년",
+          salary: "5,000 ~ 7,000만원",
+        ),
       ],
     );
   }
