@@ -66,4 +66,5 @@ class JobController {
     }
     isLoading = false;
   }
+
 }

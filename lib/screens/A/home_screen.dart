@@ -1,8 +1,10 @@
-import 'dart:developer'show log;
+import 'dart:developer' show log;
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/job_controller.dart';
+import 'package:hire_up/model/job_model.dart';
 import 'package:hire_up/screens/A/bookmark_screen.dart';
 import 'package:hire_up/screens/A/search_screen.dart';
+import 'package:hire_up/screens/B/post_detail_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/widget.dart';
 
@@ -64,93 +66,107 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget postUi({
-    required int id,
-    required String companyLogo,
-    required String companyName,
-    required String jobTitle,
-    required String location,
-    required String employmentType,
-    required String career,
-    required String salary,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      margin: EdgeInsets.only(bottom: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+  Widget postUi(JobModel job) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PostDetailScreen(),
+        ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(companyLogo, width: 55),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              spacing: 6,
-              children: [
-                Text(
-                  companyName,
-                  style: TextStyle(
-                    color: titleText,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  jobTitle,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "$location • $employmentType • $career",
-                      style: TextStyle(
-                        color: subText,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () async {
-                        await controller.addBookmark(id);
-                        log("${controller.bookmarks}");
-                        setState(() {});
-                      },
-                      child: Icon(
-                        controller.isBookmark(id)
-                            ? Icons.bookmark
-                            : Icons.bookmark_outline_outlined,
-                        color: controller.isBookmark(id) ? mainColor : subText,
-                        size: 30,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  salary,
-                  style: TextStyle(
-                    color: mainColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        margin: EdgeInsets.only(bottom: 15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(job.companyLogo, width: 55),
             ),
-          ),
-        ],
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                spacing: 6,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        job.companyName,
+                        style: TextStyle(
+                          color: titleText,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        job.deadline,
+                        style: TextStyle(
+                          color: subText,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    job.jobTitle,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "${job.location} • ${job.employmentType} • ${job.career}",
+                        style: TextStyle(
+                          color: subText,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          await controller.addBookmark(job.id);
+                          log("${controller.bookmarks}");
+                          setState(() {});
+                        },
+                        child: Icon(
+                          controller.isBookmark(job.id)
+                              ? Icons.bookmark
+                              : Icons.bookmark_outline_outlined,
+                          color: controller.isBookmark(job.id)
+                              ? mainColor
+                              : subText,
+                          size: 30,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    job.salary,
+                    style: TextStyle(
+                      color: mainColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -218,16 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: controller.model.length,
               itemBuilder: (context, index) {
                 final job = controller.model[index];
-                return postUi(
-                  id: job.id,
-                  companyLogo: job.companyLogo,
-                  companyName: job.companyName,
-                  jobTitle: job.jobTitle,
-                  location: job.location,
-                  employmentType: job.employmentType,
-                  career: job.career,
-                  salary: job.salary,
-                );
+                return postUi(job);
               },
             ),
           ),

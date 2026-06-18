@@ -38,4 +38,16 @@ class JobModel {
     viewCount: json["viewCount"],
     createdAt: json["createdAt"],
   );
+
+  String get deadline{
+    if(deadlineLabel == '마감') return '마감';
+    if(deadlineLabel == '오늘 마감') return '오늘 마감';
+
+    final match = RegExp(r'(\d+)일 전').firstMatch(deadlineLabel);
+    if(match != null){
+      final days = int.parse(match.group(1)!);
+      if(days <= 7)return '$days일 전';
+    }
+    return '';
+  }
 }
