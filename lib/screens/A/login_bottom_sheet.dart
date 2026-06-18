@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:hire_up/controller/auth_controller.dart';
 import 'package:hire_up/screens/A/sign_up_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/utils.dart';
@@ -78,10 +81,11 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
     );
   }
 
-  OutlineInputBorder border() => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: Color(0xffE8E8E8)),
-  );
+  OutlineInputBorder border() =>
+      OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Color(0xffE8E8E8)),
+      );
 
   textFields() {
     return Column(
@@ -157,9 +161,10 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
               ),
               value: keepLogin,
               activeColor: mainColor,
-              onChanged: (value) => setState(() {
-                keepLogin = !keepLogin;
-              }),
+              onChanged: (value) =>
+                  setState(() {
+                    keepLogin = !keepLogin;
+                  }),
             ),
             Text(
               "로그인 상태 유지",
@@ -188,8 +193,26 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
   }
 
   loginButton() {
+    final authController = AuthController();
     return GestureDetector(
-      onTap: () => showMessage(context, "로그이"),
+      onTap: () async {
+        if (emailController.text.isEmpty ||
+            passwordController.text.isEmpty) {
+          showMessage(context, "이메일과 비밀번호를 입력해주세요.");
+          return;
+        }
+        final success = await authController.login(email: emailController.text,
+            password: passwordController.text,
+            keepLogin: keepLogin);
+        
+        if(success){
+          Navigator.pop(context);
+          showMessage(context, "로그인 되었습니다.");
+          log("ads");
+        }else{
+          showMessage(context, "로그인에 실패하셨습니다.");
+        }
+      },
       child: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(vertical: 14),
