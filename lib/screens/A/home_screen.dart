@@ -1,7 +1,7 @@
-import 'dart:developer';
-
+import 'dart:developer'show log;
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/job_controller.dart';
+import 'package:hire_up/screens/A/bookmark_screen.dart';
 import 'package:hire_up/screens/A/search_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/widget.dart';
@@ -26,8 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> loadJob() async {
+    await controller.loadBookmark();
     await controller.jobs();
-    log("${controller.category}");
     setState(() {});
   }
 
@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 20),
             categories(),
             SizedBox(height: 30),
-            jobPosts(),
+            Expanded(child: jobPosts()),
           ],
         ),
       ),
@@ -65,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget postUi({
+    required int id,
     required String companyLogo,
     required String companyName,
     required String jobTitle,
@@ -74,53 +75,80 @@ class _HomeScreenState extends State<HomeScreen> {
     required String salary,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      margin: EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Image.asset(companyLogo, width: 45),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.network(companyLogo, width: 55),
+          ),
           SizedBox(width: 16),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                companyName,
-                style: TextStyle(
-                  color: titleText,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 6,
+              children: [
+                Text(
+                  companyName,
+                  style: TextStyle(
+                    color: titleText,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-              Text(
-                jobTitle,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                Text(
+                  jobTitle,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              Text(
-                "$location-$employmentType-$career",
-                style: TextStyle(
-                  color: subText,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "$location • $employmentType • $career",
+                      style: TextStyle(
+                        color: subText,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        await controller.addBookmark(id);
+                        log("${controller.bookmarks}");
+                        setState(() {});
+                      },
+                      child: Icon(
+                        controller.isBookmark(id)
+                            ? Icons.bookmark
+                            : Icons.bookmark_outline_outlined,
+                        color: controller.isBookmark(id) ? mainColor : subText,
+                        size: 30,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Text(
-                salary,
-                style: TextStyle(
-                  color: mainColor,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                Text(
+                  salary,
+                  style: TextStyle(
+                    color: mainColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -181,15 +209,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        postUi(
-          companyLogo: "assets/images/company/naver.png",
-          companyName: "NAVER",
-          jobTitle: "Frontend 개발자",
-          location: "경기 성남",
-          employmentType: "정규직",
-          career: "경력 3년",
-          salary: "5,000 ~ 7,000만원",
-        ),
+        SizedBox(height: 25),
+        if (controller.isLoading)
+          Expanded(child: Center(child: CircularProgressIndicator()))
+        else
+          Expanded(
+            child: ListView.builder(
+              itemCount: controller.model.length,
+              itemBuilder: (context, index) {
+                final job = controller.model[index];
+                return postUi(
+                  id: job.id,
+                  companyLogo: job.companyLogo,
+                  companyName: job.companyName,
+                  jobTitle: job.jobTitle,
+                  location: job.location,
+                  employmentType: job.employmentType,
+                  career: job.career,
+                  salary: job.salary,
+                );
+              },
+            ),
+          ),
       ],
     );
   }
@@ -298,7 +339,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   AppBar appBar() {
     return AppBar(
-      backgroundColor: Color(0xffF5F5F7),
+      backgroundColor: Color(0xffF5F5F7), //기본 배경 색
+      surfaceTintColor: Color(0xffF5F5F7), //화면 동작 중 색(스크롤 등)
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -306,7 +348,14 @@ class _HomeScreenState extends State<HomeScreen> {
             "assets/simbol/app_icon.png",
             width: 90,
           ),
-          Icon(Icons.bookmark_outline_outlined, size: 35),
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => BookmarkScreen(),
+              ),
+            ),
+            child: Icon(Icons.bookmark_outline_outlined, size: 35),
+          ),
         ],
       ),
     );
