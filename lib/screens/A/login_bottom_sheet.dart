@@ -81,11 +81,10 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
     );
   }
 
-  OutlineInputBorder border() =>
-      OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Color(0xffE8E8E8)),
-      );
+  OutlineInputBorder border() => OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide(color: Color(0xffE8E8E8)),
+  );
 
   textFields() {
     return Column(
@@ -161,10 +160,9 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
               ),
               value: keepLogin,
               activeColor: mainColor,
-              onChanged: (value) =>
-                  setState(() {
-                    keepLogin = !keepLogin;
-                  }),
+              onChanged: (value) => setState(() {
+                keepLogin = !keepLogin;
+              }),
             ),
             Text(
               "로그인 상태 유지",
@@ -196,20 +194,31 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
     final authController = AuthController();
     return GestureDetector(
       onTap: () async {
-        if (emailController.text.isEmpty ||
-            passwordController.text.isEmpty) {
-          showMessage(context, "이메일과 비밀번호를 입력해주세요.");
+        final emailError = authController.checkEmail(emailController.text);
+        final passwordError = authController.checkEmail(
+          passwordController.text,
+        );
+
+        if(emailError != null){
+          showMessage(context, emailError);
           return;
         }
-        final success = await authController.login(email: emailController.text,
-            password: passwordController.text,
-            keepLogin: keepLogin);
-        
-        if(success){
+        if(passwordError != null){
+          showMessage(context, passwordError);
+          return;
+        }
+
+        final success = await authController.login(
+          email: emailController.text,
+          password: passwordController.text,
+          keepLogin: keepLogin,
+        );
+
+        if (success) {
           Navigator.pop(context);
           showMessage(context, "로그인 되었습니다.");
           log("ads");
-        }else{
+        } else {
           showMessage(context, "로그인에 실패하셨습니다.");
         }
       },
