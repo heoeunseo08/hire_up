@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hire_up/screens/app_screen.dart';
+import 'package:hire_up/utils/info.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(debugShowCheckedModeBanner: false,
       home: AppScreen(),
+      scaffoldMessengerKey: globalKey,
     );
   }
 }

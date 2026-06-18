@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hire_up/screens/A/login_bottom_sheet.dart';
 import 'package:hire_up/utils/info.dart';
 
 Future<dynamic> toPage(BuildContext context, Widget page) {
@@ -33,5 +34,14 @@ Widget tag({
         ),
       ),
     ),
+  );
+}
+
+void showLoginBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    useRootNavigator: true,
+    builder: (_) => LoginBottomSheet(),
   );
 }

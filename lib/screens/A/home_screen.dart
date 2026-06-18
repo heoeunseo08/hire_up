@@ -138,9 +138,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       GestureDetector(
                         onTap: () async {
-                          await controller.addBookmark(job.id);
-                          log("${controller.bookmarks}");
-                          setState(() {});
+                          if (!isLogin) {
+                            showLoginBottomSheet(context);
+                            return;
+                          } else {
+                            await controller.addBookmark(job.id);
+                            log("${controller.bookmarks}");
+                            setState(() {});
+                          }
                         },
                         child: Icon(
                           controller.isBookmark(job.id)
