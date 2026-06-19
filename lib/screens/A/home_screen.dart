@@ -361,11 +361,14 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 90,
           ),
           GestureDetector(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => BookmarkScreen(),
-              ),
-            ),
+            onTap: () async {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => BookmarkScreen(),
+                ),
+              );
+              loadJob();
+            },
             child: Icon(Icons.bookmark_outline_outlined, size: 35),
           ),
         ],

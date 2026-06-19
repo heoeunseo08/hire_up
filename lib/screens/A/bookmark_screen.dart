@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/job_controller.dart';
 import 'package:hire_up/model/job_model.dart';
-import 'package:hire_up/screens/B/post_detail_screen.dart';
+import 'package:hire_up/screens/A/home_screen.dart';
 import 'package:hire_up/utils/info.dart';
+import 'package:hire_up/utils/utils.dart';
 import 'package:hire_up/utils/widget.dart';
 
 class BookmarkScreen extends StatefulWidget {
@@ -53,19 +54,29 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
         ),
       );
     }
-    return Column(
-      children: [],
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 30),
+        child: ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 14),
+          itemCount: bookmarkJobs.length,
+          itemBuilder: (context, index) => postUi(
+            bookmarkJobs[index],
+          ),
+        ),
+      ),
     );
   }
 
   Widget postUi(JobModel job) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PostDetailScreen(),
-        ),
-      ),
+      onTap: () => showMessage(context, "공고 상세보기는 아직 준비중입니다."),
+      onHorizontalDragEnd: (details) async {
+        if (details.primaryVelocity! > 0) {
+          await controller.removeBookmark(job.id);
+          setState(() {});
+        }
+      },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         margin: EdgeInsets.only(bottom: 15),
@@ -130,10 +141,8 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                       ),
                       GestureDetector(
                         onTap: () async {
-                          if (!isLogin) {
-                            showLoginBottomSheet(context);
-                            return;
-                          }
+                          await controller.removeBookmark(job.id);
+                          setState(() {});
                         },
                         child: Icon(
                           controller.isBookmark(job.id)
@@ -206,18 +215,24 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
           ),
         ),
         SizedBox(height: 22),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 68, vertical: 15),
-          decoration: BoxDecoration(
-            color: mainColor,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            "로그인",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 18,
+        GestureDetector(
+          onTap: () {
+            showLoginBottomSheet(context);
+            setState(() {});
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 68, vertical: 15),
+            decoration: BoxDecoration(
+              color: mainColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              "로그인",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
             ),
           ),
         ),
@@ -232,7 +247,15 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(),
+                ),
+              );
+              setState(() {});
+            },
             child: Icon(
               Icons.arrow_back_ios,
               color: Colors.black,

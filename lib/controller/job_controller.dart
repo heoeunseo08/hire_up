@@ -37,6 +37,15 @@ class JobController {
     );
   }
 
+  Future<void> removeBookmark(int id) async {
+    final pref = await SharedPreferences.getInstance();
+    bookmarks.remove(id);
+    await pref.setStringList(
+      'bookmark',
+      bookmarks.map((e) => e.toString()).toList(),
+    );
+  }
+
   Future<void> jobs() async {
     isLoading = true;
     error = null;
@@ -68,5 +77,4 @@ class JobController {
     }
     isLoading = false;
   }
-
 }
