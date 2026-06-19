@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/auth_controller.dart';
 import 'package:hire_up/screens/A/sign_up_screen.dart';
@@ -17,7 +15,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool isObscureText = false;
+  bool isObscureText = true;
   bool keepLogin = false;
 
   @override
@@ -147,6 +145,56 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
     );
   }
 
+  loginButton() {
+    final authController = AuthController();
+    return GestureDetector(
+      onTap: () async {
+        final emailError = authController.checkEmail(emailController.text);
+        if (emailError != null) {
+          showMessage(context, emailError);
+          return;
+        }
+        final passwordError = authController.checkPassword(
+          passwordController.text,
+        );
+        if (passwordError != null) {
+          showMessage(context, passwordError);
+          return;
+        }
+
+        final success = await authController.login(
+          email: emailController.text,
+          password: passwordController.text,
+          keepLogin: keepLogin,
+        );
+
+        if (success) {
+          Navigator.pop(context);
+          showMessage(context, "로그인 되었습니다.");
+        } else {
+          showMessage(context, authController.error ?? '로그인에 실패했습니다.');
+        }
+      },
+      child: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(vertical: 14),
+        width: MediaQuery.widthOf(context),
+        decoration: BoxDecoration(
+          color: mainColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          "로그인",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
+        ),
+      ),
+    );
+  }
+
   keepLoginWidget() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -187,58 +235,6 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
           ),
         ),
       ],
-    );
-  }
-
-  loginButton() {
-    final authController = AuthController();
-    return GestureDetector(
-      onTap: () async {
-        final emailError = authController.checkEmail(emailController.text);
-        final passwordError = authController.checkEmail(
-          passwordController.text,
-        );
-
-        if(emailError != null){
-          showMessage(context, emailError);
-          return;
-        }
-        if(passwordError != null){
-          showMessage(context, passwordError);
-          return;
-        }
-
-        final success = await authController.login(
-          email: emailController.text,
-          password: passwordController.text,
-          keepLogin: keepLogin,
-        );
-
-        if (success) {
-          Navigator.pop(context);
-          showMessage(context, "로그인 되었습니다.");
-          log("ads");
-        } else {
-          showMessage(context, "로그인에 실패하셨습니다.");
-        }
-      },
-      child: Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(vertical: 14),
-        width: MediaQuery.widthOf(context),
-        decoration: BoxDecoration(
-          color: mainColor,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          "로그인",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-          ),
-        ),
-      ),
     );
   }
 
