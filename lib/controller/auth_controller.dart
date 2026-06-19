@@ -50,7 +50,7 @@ class AuthController {
   String? checkEmail(String email) {
     if (email.isEmpty) return '이메일을 입력해수제요.';
     final before = email.split('@')[0];
-    if (!email.contains('@') && !email.contains('.') && before.contains('.')) {
+    if (!email.contains('@') || !email.contains('.') || before.contains('.')) {
       return '이메일을 확인해수제요.';
     }
     return null;
