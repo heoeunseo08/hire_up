@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hire_up/controller/job_controller.dart';
 import 'package:hire_up/model/job_model.dart';
 import 'package:hire_up/screens/A/home_screen.dart';
+import 'package:hire_up/screens/app_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/utils.dart';
 import 'package:hire_up/utils/widget.dart';
@@ -216,9 +217,10 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
         ),
         SizedBox(height: 22),
         GestureDetector(
-          onTap: () {
-            showLoginBottomSheet(context);
+          onTap: () async {
+            await showLoginBottomSheet(context);
             setState(() {});
+            loadBookmark();
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 68, vertical: 15),
@@ -248,11 +250,12 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
         children: [
           GestureDetector(
             onTap: () {
-              Navigator.pushReplacement(
+              Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => HomeScreen(),
+                  builder: (context) => AppScreen(),
                 ),
+                (route) => false,
               );
               setState(() {});
             },

@@ -37,7 +37,7 @@ Widget tag({
   );
 }
 
-void showLoginBottomSheet(BuildContext context) {
+Future<void> showLoginBottomSheet(BuildContext context) async {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
