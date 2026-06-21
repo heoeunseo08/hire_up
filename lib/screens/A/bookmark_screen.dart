@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/job_controller.dart';
 import 'package:hire_up/model/job_model.dart';
-import 'package:hire_up/screens/A/home_screen.dart';
 import 'package:hire_up/screens/app_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/utils.dart';
@@ -73,7 +72,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
     return GestureDetector(
       onTap: () => showMessage(context, "공고 상세보기는 아직 준비중입니다."),
       onHorizontalDragEnd: (details) async {
-        if (details.primaryVelocity! > 0) {
+        if (details.primaryVelocity! < 0) {
           await controller.removeBookmark(job.id);
           setState(() {});
         }

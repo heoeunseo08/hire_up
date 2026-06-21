@@ -48,11 +48,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
             checkButton(),
             SizedBox(height: 20),
             inputCode(),
+            SizedBox(height: 40),
+            signUpButton(),
             SizedBox(height: 100),
           ],
         ),
       ),
     );
+  }
+
+  Widget loginText() {
+    return Row();
   }
 
   Widget checkButton() {
@@ -76,6 +82,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
             color: mainColor,
             fontWeight: FontWeight.w600,
             fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget signUpButton() {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 20),
+        width: MediaQuery.widthOf(context),
+        padding: EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: mainColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          "회원가입",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 17,
           ),
         ),
       ),
