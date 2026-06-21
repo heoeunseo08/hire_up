@@ -149,12 +149,12 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
     final authController = AuthController();
     return GestureDetector(
       onTap: () async {
-        final emailError = authController.checkEmail(emailController.text);
+        final emailError = authController.checkLoginEmail(emailController.text);
         if (emailError != null) {
           showMessage(context, emailError);
           return;
         }
-        final passwordError = authController.checkPassword(
+        final passwordError = authController.checkLoginPassword(
           passwordController.text,
         );
         if (passwordError != null) {

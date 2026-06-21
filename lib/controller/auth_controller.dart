@@ -47,7 +47,7 @@ class AuthController {
     }
   }
 
-  String? checkEmail(String email) {
+  String? checkLoginEmail(String email) {
     if (email.isEmpty) return '이메일을 입력해수제요.';
     final before = email.split('@')[0];
     if (!email.contains('@') || !email.contains('.') || before.contains('.')) {
@@ -56,9 +56,27 @@ class AuthController {
     return null;
   }
 
-  String? checkPassword(String password) {
+  String? checkLoginPassword(String password) {
     if (password.isEmpty) return '비밀번호를 입력해수제요.';
     if (password.length < 6) return '비밀번호는 6자 이상이어야 해요.';
+    return null;
+  }
+
+  String? checkSignupEmail(String email) {
+    if (email.isEmpty) return '이메일을 입력해수제요.';
+    if (!email.contains('@')) {
+      return '@을 추가해주세요';
+    }
+    return null;
+  }
+  String? checkSignupName(String name) {
+    return null;
+  }
+  String? checkSignupPassword(String password, String checkPassword) {
+    if (password.isEmpty) return '비밀번호를 입력해수제요.';
+    if (password == checkPassword) return '비밀번호 확인은 비밀번호와 일치해야합니다.';
+    if (password == checkPassword) return '비밀번호 확인은 비밀번호와 일치해야합니다.';
+    if (password.length < 8) return '비밀번호는 6자 이상이어야 해요.';
     return null;
   }
 

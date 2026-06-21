@@ -7,7 +7,11 @@ import 'package:hire_up/utils/info.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  try{
   await AuthController().loadTkn();
+  }catch(e){
+    print('에러:$e');
+  }
   runApp(const MyApp());
 }
 

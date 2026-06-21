@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hire_up/utils/info.dart';
+import 'package:hire_up/utils/widget.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -29,9 +31,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
       backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: bgColor,
-
+        surfaceTintColor: bgColor,
         leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
+          onTap: () {
+            Navigator.pop(context);
+            showLoginBottomSheet(context);
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Icon(Icons.arrow_back_ios),
@@ -47,10 +52,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
             SizedBox(height: 10),
             checkButton(),
             SizedBox(height: 20),
-            inputCode(),
-            SizedBox(height: 40),
+            if (sendCode) inputCode(),
             signUpButton(),
-            SizedBox(height: 100),
+            SizedBox(height: 30),
+            loginText(),
+            SizedBox(height: 80),
           ],
         ),
       ),
@@ -58,7 +64,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget loginText() {
-    return Row();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "이미 계정이 있으신가요? ",
+          style: TextStyle(
+            color: subText,
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+            showLoginBottomSheet(context);
+          },
+          child: Text(
+            "로그인",
+            style: TextStyle(
+              color: mainColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget checkButton() {
@@ -72,18 +104,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
         width: MediaQuery.widthOf(context),
         padding: EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
+          color: checkCode ? Color(0xffdfede4) : bgColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: mainColor),
+          border: Border.all(color: checkCode ? Color(0xff69C463) : mainColor),
         ),
         alignment: Alignment.center,
-        child: Text(
-          sendCode ? "인증번호 재발송" : "인증번호 발송",
-          style: TextStyle(
-            color: mainColor,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
+        child: checkCode
+            ? Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Color(0xff69C463),
+                  size: 20,
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    '인증완료',
+                    style: TextStyle(
+                      color: Color(0xff69C463),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              )
+            : Text(
+                sendCode ? "인증번호 재발송" : "인증번호 발송",
+                style: TextStyle(
+                  color: mainColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
       ),
     );
   }
@@ -166,6 +219,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               GestureDetector(
                 onTap: () {
                   sendCode = !sendCode;
+                  checkCode = true;
                   setState(() {});
                 },
                 child: Container(
@@ -187,6 +241,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ],
           ),
+          SizedBox(height: 40),
         ],
       ),
     );
@@ -467,6 +522,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   onChanged: (value) {
                     setState(() {});
                   },
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     border: border(Color(0xffE9E7E8)),
@@ -509,6 +565,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   onChanged: (value) {
                     setState(() {});
                   },
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     border: border(Color(0xffE9E7E8)),
@@ -551,6 +608,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   onChanged: (value) {
                     setState(() {});
                   },
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     border: border(Color(0xffE9E7E8)),
