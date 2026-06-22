@@ -24,7 +24,6 @@ class SearchKeywordController {
       }
     } catch (e) {
       error = "네트워크 오류가 발생했습니다.";
-      print("에러 상세: $e");
     }
   }
 

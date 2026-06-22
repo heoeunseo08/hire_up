@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(debugShowCheckedModeBanner: false,
       home: AppScreen(),
       scaffoldMessengerKey: globalKey,
+      navigatorKey: navigatorKey,
     );
   }
 }

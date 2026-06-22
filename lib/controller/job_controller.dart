@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:hire_up/model/job_model.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:http/http.dart' as http;
@@ -64,7 +63,6 @@ class JobController {
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        log("결과 : $data");
         model = (data['data']['items'] as List)
             .map((e) => JobModel.fromJson(e))
             .toList();
@@ -73,7 +71,6 @@ class JobController {
       }
     } catch (e) {
       error = "네트워크 오류가 발생했습니다.";
-      print("에러 상세: $e");
     }
     isLoading = false;
   }

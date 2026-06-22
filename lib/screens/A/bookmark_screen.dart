@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/job_controller.dart';
-import 'package:hire_up/model/job_model.dart';
-import 'package:hire_up/screens/app_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/utils.dart';
 import 'package:hire_up/utils/widget.dart';
@@ -19,10 +17,10 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   @override
   void initState() {
     super.initState();
-    loadBookmark();
+    _load();
   }
 
-  Future<void> loadBookmark() async {
+  Future<void> _load() async {
     await controller.loadBookmark();
     await controller.jobs();
     setState(() {});
@@ -33,166 +31,82 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          appBar(),
-          isLogin ? bookmarkWidget() : Expanded(child: noLogin()),
+          _appBar(),
+          isLogin ? _bookmarkList() : Expanded(child: _noLogin()),
         ],
       ),
     );
   }
 
-  Widget bookmarkWidget() {
+  Widget _bookmarkList() {
     final bookmarkJobs = controller.model
-        .where((element) => controller.isBookmark(element.id))
+        .where((job) => controller.isBookmark(job.id))
         .toList();
 
     if (bookmarkJobs.isEmpty) {
       return Expanded(
         child: Center(
-          child: Text("관심 공고가 없습니다,"),
+          child: Text(
+            "관심 공고가 없습니다.",
+            style: TextStyle(color: subText, fontSize: 16),
+          ),
         ),
       );
     }
+
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.only(top: 30),
+        padding: EdgeInsets.only(top: 30),
         child: ListView.builder(
           padding: EdgeInsets.symmetric(horizontal: 14),
           itemCount: bookmarkJobs.length,
-          itemBuilder: (context, index) => postUi(
-            bookmarkJobs[index],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget postUi(JobModel job) {
-    return GestureDetector(
-      onTap: () => showMessage(context, "공고 상세보기는 아직 준비중입니다."),
-      onHorizontalDragEnd: (details) async {
-        if (details.primaryVelocity! < 0) {
-          await controller.removeBookmark(job.id);
-          setState(() {});
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        margin: EdgeInsets.only(bottom: 15),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(job.companyLogo, width: 55),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                spacing: 6,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        job.companyName,
-                        style: TextStyle(
-                          color: titleText,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        job.deadline,
-                        style: TextStyle(
-                          color: subText,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    job.jobTitle,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "${job.location} • ${job.employmentType} • ${job.career}",
-                        style: TextStyle(
-                          color: subText,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          await controller.removeBookmark(job.id);
-                          setState(() {});
-                        },
-                        child: Icon(
-                          controller.isBookmark(job.id)
-                              ? Icons.bookmark
-                              : Icons.bookmark_outline_outlined,
-                          color: controller.isBookmark(job.id)
-                              ? mainColor
-                              : subText,
-                          size: 30,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    job.salary,
-                    style: TextStyle(
-                      color: mainColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+          itemBuilder: (context, index) {
+            final job = bookmarkJobs[index];
+            return Dismissible(
+              key: ValueKey(job.id),
+              direction: DismissDirection.endToStart,
+              onDismissed: (_) async {
+                await controller.removeBookmark(job.id);
+                setState(() {});
+              },
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-            ),
-          ],
+              child: jobCard(
+                context: context,
+                job: job,
+                controller: controller,
+                onBookmarkChanged: () async {
+                  await controller.removeBookmark(job.id);
+                  setState(() {});
+                },
+                onTap: () => showMessage("공고 상세보기는 아직 준비중입니다."),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget noLogin() {
+  Widget _noLogin() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Stack(
-          alignment: .center,
+          alignment: Alignment.center,
           children: [
-            Icon(
-              Icons.lock_outlined,
-              size: 60,
-              color: subText,
-            ),
+            Icon(Icons.lock_outlined, size: 60, color: subText),
             Positioned(
               bottom: 16,
-              child: Container(
-                width: 12,
-                height: 12,
-                color: bgColor,
-              ),
+              child: Container(width: 12, height: 12, color: bgColor),
             ),
           ],
         ),
@@ -219,7 +133,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
           onTap: () async {
             await showLoginBottomSheet(context);
             setState(() {});
-            loadBookmark();
+            await _load();
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 68, vertical: 15),
@@ -242,27 +156,14 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
     );
   }
 
-  Widget appBar() {
+  Widget _appBar() {
     return Padding(
       padding: EdgeInsets.only(top: 50, left: 20),
       child: Row(
         children: [
           GestureDetector(
-            onTap: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AppScreen(),
-                ),
-                (route) => false,
-              );
-              setState(() {});
-            },
-            child: Icon(
-              Icons.arrow_back_ios,
-              color: Colors.black,
-              size: 25,
-            ),
+            onTap: () => Navigator.pop(context),
+            child: Icon(Icons.arrow_back_ios, color: Colors.black, size: 25),
           ),
           SizedBox(width: 20),
           Text(

@@ -3,6 +3,7 @@ import 'package:hire_up/controller/auth_controller.dart';
 import 'package:hire_up/screens/A/sign_up_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/utils.dart';
+import 'package:hire_up/utils/widget.dart' show inputBorder;
 
 class LoginBottomSheet extends StatefulWidget {
   const LoginBottomSheet({super.key});
@@ -79,10 +80,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
     );
   }
 
-  OutlineInputBorder border() => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: Color(0xffE8E8E8)),
-  );
+  OutlineInputBorder _border() => inputBorder(Color(0xffE8E8E8));
 
   textFields() {
     return Column(
@@ -92,9 +90,9 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
           decoration: InputDecoration(
             fillColor: Color(0xffF7F8FA),
             filled: true,
-            border: border(),
-            enabledBorder: border(),
-            focusedBorder: border(),
+            border: _border(),
+            enabledBorder: _border(),
+            focusedBorder: _border(),
             hint: Text(
               "이메일을 입력해주세요",
               style: TextStyle(color: subText, fontSize: 16),
@@ -109,9 +107,9 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
           decoration: InputDecoration(
             fillColor: Color(0xffF7F8FA),
             filled: true,
-            border: border(),
-            enabledBorder: border(),
-            focusedBorder: border(),
+            border: _border(),
+            enabledBorder: _border(),
+            focusedBorder: _border(),
             hint: Text(
               "비밀번호를 입력해주세요",
               style: TextStyle(color: subText, fontSize: 16),
@@ -151,14 +149,14 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
       onTap: () async {
         final emailError = authController.checkLoginEmail(emailController.text);
         if (emailError != null) {
-          showMessage(context, emailError);
+          showMessage(emailError);
           return;
         }
         final passwordError = authController.checkLoginPassword(
           passwordController.text,
         );
         if (passwordError != null) {
-          showMessage(context, passwordError);
+          showMessage(passwordError);
           return;
         }
 
@@ -170,9 +168,9 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
 
         if (success) {
           Navigator.pop(context);
-          showMessage(context, "로그인 되었습니다.");
+          showMessage("로그인 되었습니다.");
         } else {
-          showMessage(context, authController.error ?? '로그인에 실패했습니다.');
+          showMessage(authController.error ?? '로그인에 실패했습니다.');
         }
       },
       child: Container(
@@ -224,7 +222,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
         ),
 
         GestureDetector(
-          onTap: () => showMessage(context, "비밀번호 찾기 기능 아직 준비중입니다."),
+          onTap: () => showMessage("비밀번호 찾기 기능 아직 준비중입니다."),
           child: Text(
             "비밀번호 찾기",
             style: TextStyle(

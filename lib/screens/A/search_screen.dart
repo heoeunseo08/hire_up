@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/job_controller.dart';
 import 'package:hire_up/controller/search_keyword_controller.dart';
 import 'package:hire_up/screens/B/post_detail_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/utils.dart';
+import 'package:hire_up/utils/widget.dart' show inputBorder;
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -42,7 +42,6 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> search(String keyword) async {
-    log("호출:$keyword");
     if (keyword.isEmpty) {
       setState(() => isSelected = true);
       return;
@@ -50,7 +49,6 @@ class _SearchScreenState extends State<SearchScreen> {
     await keywordController.addRentKeywords(keyword);
     jobController.keyword = keyword;
     await jobController.jobs();
-    log("결과:${jobController.model}");
     setState(() => isSelected = false);
   }
 
@@ -69,7 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
             onPressed: () {
               Navigator.pop(context);
               keywordController.clearRecentKeyword();
-              showMessage(context, "최근 검색어를 모두 삭제했습니다.");
+              showMessage("최근 검색어를 모두 삭제했습니다.");
               setState(() {});
             },
             child: Text("삭제"),
@@ -380,7 +378,6 @@ class _SearchScreenState extends State<SearchScreen> {
             child: TextFormField(
               controller: controller,
               onChanged: (value) {
-                log("onChange :$value");
                 delay?.cancel();
                 delay = Timer(
                   Duration(seconds: 1),
@@ -389,10 +386,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 setState(() {});
               },
               decoration: InputDecoration(
-                border: border(Color(0xffE9E7E8)),
-                disabledBorder: border(Color(0xffE9E7E8)),
-                enabledBorder: border(Color(0xffE9E7E8)),
-                focusedBorder: border(mainColor),
+                border: inputBorder(Color(0xffE9E7E8)),
+                disabledBorder: inputBorder(Color(0xffE9E7E8)),
+                enabledBorder: inputBorder(Color(0xffE9E7E8)),
+                focusedBorder: inputBorder(mainColor),
                 fillColor: Color(0xffF7F8FA),
                 filled: true,
 
@@ -435,8 +432,4 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  border(Color color) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: color, width: 1.5),
-  );
 }

@@ -5,6 +5,7 @@ ValueNotifier<String> userName = ValueNotifier("게스트");
 String tkn = '';
 
 final GlobalKey<ScaffoldMessengerState> globalKey = GlobalKey();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
 bool get isLogin => tkn.isNotEmpty;
 

@@ -11,7 +11,8 @@ class AuthController {
     required String email,
     required String password,
     required bool keepLogin,
-  }) async {
+  }) async
+  {
     error = null;
 
     try {
@@ -52,7 +53,8 @@ class AuthController {
     required String password,
     required String name,
     required String phone,
-  }) async {
+  }) async
+  {
     error = null;
 
     try {
@@ -66,15 +68,12 @@ class AuthController {
           'phone': phone,
         }),
       );
-      print('상태코드: ${res.statusCode}');
-      print('응답: ${res.body}'); // 추가
       if (res.statusCode == 200 || res.statusCode == 201) return true;
       final data = jsonDecode(res.body);
       error = data['errors']?[0]['message'] ?? '실패했습니다.';
       return false;
     } catch (e) {
       error = '네트워크 오류';
-      print('에러: $error'); // 이미 있음
       return false;
     }
   }
@@ -122,10 +121,10 @@ class AuthController {
   }
 
   String? checkLoginEmail(String email) {
-    if (email.isEmpty) return '이메일을 입력해수제요.';
+    if (email.isEmpty) return '이메일을 입력해주세요.';
     final before = email.split('@')[0];
     if (!email.contains('@') || !email.contains('.') || before.contains('.')) {
-      return '이메일을 확인해수제요.';
+      return '이메일을 확인해주세요.';
     }
     return null;
   }
@@ -153,7 +152,7 @@ class AuthController {
   }
 
   String? checkSignupNumber(String number1, String number2, String number3) {
-    if (number1.length < 3 && number2.length < 4 && number3.length < 4) {
+    if (number1.length < 3 || number2.length < 4 || number3.length < 4) {
       return '휴대폰 번호를 입력해주세요.';
     }
     return null;
