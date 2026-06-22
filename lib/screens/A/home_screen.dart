@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hire_up/controller/job_controller.dart';
 import 'package:hire_up/screens/A/bookmark_screen.dart';
 import 'package:hire_up/screens/A/search_screen.dart';
 import 'package:hire_up/screens/B/post_detail_screen.dart';
+import 'package:hire_up/screens/B/recommended_screen.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:hire_up/utils/widget.dart';
 
@@ -32,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _load() async {
     await controller.loadBookmark();
     await controller.jobs();
+    await controller.recommendedJobs();
     setState(() {});
   }
 
@@ -60,6 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
             _searchButton(),
             SizedBox(height: 20),
             _categories(),
+            SizedBox(height: 30),
+            recommendedPost(),
             SizedBox(height: 30),
             Expanded(child: _jobPosts()),
           ],
@@ -181,6 +186,156 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget recommendedPost() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  "오늘의 추천공고",
+                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
+                ),
+                Icon(
+                  CupertinoIcons.sparkles,
+                  size: 25,
+                  color: Color(0xfffbd534),
+                ),
+              ],
+            ),
+            GestureDetector(
+              onTap: () => toPage(context, RecommendedScreen()),
+              child: Row(
+                children: [
+                  Text(
+                    "더보디",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: subText,
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_outlined,
+                    size: 25,
+                    color: subText,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 25),
+        if (controller.isLoading)
+          SizedBox(
+            height: 400,
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else
+          SizedBox(
+            height: 400,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.recommendedModel.length,
+              itemBuilder: (context, index) {
+                final job = controller.recommendedModel[index];
+
+                return Container(
+                  padding: EdgeInsets.all(14),
+
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Color(0xffe6e6e6)),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          dDayWidget(job.dDay, job.recruitStatus),
+
+                          GestureDetector(
+                            onTap: () async {
+                              if (!isLogin) {
+                                await showLoginBottomSheet(context);
+                              } else {
+                                await controller.addBookmark(job.id);
+                              }
+                              setState(() {});
+                            },
+                            child: Icon(
+                              controller.isBookmark(job.id)
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_outline_outlined,
+                              color: controller.isBookmark(job.id)
+                                  ? mainColor
+                                  : subText,
+                              size: 30,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(job.companyLogo, width: 55),
+                      ),
+
+                      Text(
+                        job.jobTitle,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        "${job.location} • ${job.employmentType}",
+                        style: TextStyle(
+                          color: subText,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        job.salary,
+                        style: TextStyle(
+                          color: mainColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget dDayWidget(String dDay, String state) {
+    return Container(
+      decoration: BoxDecoration(
+        color: dDayColor(state).withOpacity(0.6),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Text(
+        dDay,
+        style: TextStyle(
+          color: dDayColor(state),
+          fontWeight: FontWeight.w500,
+          fontSize: 12,
         ),
       ),
     );
