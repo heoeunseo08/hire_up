@@ -139,7 +139,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       GestureDetector(
                         onTap: () async {
                           if (!isLogin) {
-                            showLoginBottomSheet(context);
+                            await showLoginBottomSheet(context);
+                            setState(() {});
                             return;
                           } else {
                             await controller.addBookmark(job.id);
@@ -316,13 +317,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Text(
-              "$userName님!",
-              style: TextStyle(
-                color: mainColor,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-              ),
+            ValueListenableBuilder(
+              valueListenable: userName,
+              builder: (context, value, child) {
+                return Text(
+                  "${userName.value}님!",
+                  style: TextStyle(
+                    color: mainColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                );
+              }
             ),
           ],
         ),

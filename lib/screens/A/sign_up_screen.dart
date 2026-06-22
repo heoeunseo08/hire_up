@@ -1,6 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hire_up/controller/auth_controller.dart';
+import 'package:hire_up/controller/method_controller.dart';
+import 'package:hire_up/screens/A/login_bottom_sheet.dart';
 import 'package:hire_up/utils/info.dart';
+import 'package:hire_up/utils/utils.dart';
 import 'package:hire_up/utils/widget.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -11,6 +17,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  AuthController authController = AuthController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController passwordCheckController = TextEditingController();
@@ -24,6 +31,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool isObscurePasswordCheck = true;
   bool sendCode = false;
   bool checkCode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    MethodController().checkPermission();
+    MethodController.smsChannel.setMethodCallHandler(
+      (call) async {
+        print('채널 호출됨: ${call.method}');
+        if (call.method == 'smsRead') {
+          print('인증번호: ${call.arguments}');
+          setState(() {
+            codeController.text = call.arguments as String;
+          });
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,9 +119,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Widget checkButton() {
     return GestureDetector(
-      onTap: () {
-        sendCode = !sendCode;
-        setState(() {});
+      onTap: () async {
+        final String phone =
+            '${phoneController1.text}${phoneController2.text}${phoneController3.text}';
+        final phoneError = authController.checkSignupNumber(
+          phoneController1.text,
+          phoneController2.text,
+          phoneController3.text,
+        );
+
+        if (phoneError != null) {
+          showMessage(context, phoneError);
+          return;
+        }
+        final success = await authController.sendCode(phone: phone);
+        if (success) {
+          setState(() => sendCode = true);
+        } else {
+          showMessage(context, authController.error ?? "인증번호 발송에 실패하셨셨습니다.");
+        }
       },
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 20),
@@ -111,12 +151,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
         alignment: Alignment.center,
         child: checkCode
             ? Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.check_circle,
                     color: Color(0xff69C463),
-                  size: 20,
+                    size: 20,
                   ),
                   SizedBox(width: 4),
                   Text(
@@ -143,7 +183,61 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Widget signUpButton() {
     return GestureDetector(
-      onTap: () {},
+      onTap: () async {
+        final emailError = authController.checkSignupEmail(
+          emailController.text,
+        );
+        if (emailError != null) {
+          showMessage(context, emailError);
+          return;
+        }
+
+        final passwordError = authController.checkSignupPassword(
+          passwordController.text,
+          passwordCheckController.text,
+        );
+        if (passwordError != null) {
+          showMessage(context, passwordError);
+          return;
+        }
+
+        final nameError = authController.checkSignupName(nameController.text);
+        if (nameError != null) {
+          showMessage(context, nameError);
+          return;
+        }
+
+        final numberError = authController.checkSignupNumber(
+          phoneController1.text,
+          phoneController2.text,
+          phoneController3.text,
+        );
+        if (numberError != null) {
+          showMessage(context, numberError);
+          return;
+        }
+        if (!checkCode) {
+          showMessage(context, '휴대폰 인증을 완료해주세요.');
+          return;
+        }
+
+        final success = await authController.signup(
+          email: emailController.text,
+          password: passwordController.text,
+          name: nameController.text,
+          phone:
+              '${phoneController1.text}${phoneController2.text}${phoneController3.text}',
+        );
+        if (success) {
+          showMessage(context, "회원가입에 성공하셨습니다.");
+          await Future.delayed(Duration(seconds: 1));
+          Navigator.pop(context);
+          showLoginBottomSheet(context);
+        } else {
+          showMessage(context, authController.error ?? "회원가입에 실패하셨습니다.");
+          log(authController.error??'');
+        }
+      },
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 20),
         width: MediaQuery.widthOf(context),
@@ -153,7 +247,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.center,
-        child: Text(
+          child: Text(
           "회원가입",
           style: TextStyle(
             color: Colors.white,
@@ -217,10 +311,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               SizedBox(width: 16),
               GestureDetector(
-                onTap: () {
-                  sendCode = !sendCode;
-                  checkCode = true;
-                  setState(() {});
+                onTap: () async {
+                  final String phone =
+                      '${phoneController1.text}${phoneController2.text}${phoneController3.text}';
+
+                  final success = await authController.checkCode(
+                    phone: phone,
+                    code: codeController.text,
+                  );
+                  if (success) {
+                    setState(
+                      () {
+                        checkCode = true;
+                        sendCode = false;
+                      },
+                    );
+                  } else {
+                    showMessage(
+                      context,
+                      authController.error ?? "인증번호가 올바르지않습니다.",
+                    );
+                  }
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
