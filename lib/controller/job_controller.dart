@@ -9,6 +9,7 @@ class JobController {
   List<JobModel> model = [];
   List<RecommendedModel> recommendedModel = [];
   bool isLoading = false;
+  bool isRecommendedLoading = false;
   String? error;
 
   String sort = 'latest';
@@ -77,7 +78,7 @@ class JobController {
     isLoading = false;
   }
   Future<void> recommendedJobs() async {
-    isLoading = true;
+    isRecommendedLoading = true;
     error = null;
 
     try {
@@ -97,6 +98,6 @@ class JobController {
     } catch (e) {
       error = "네트워크 오류가 발생했습니다.";
     }
-    isLoading = false;
+    isRecommendedLoading = false;
   }
 }

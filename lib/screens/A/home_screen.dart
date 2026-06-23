@@ -56,18 +56,20 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _appBar(),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          children: [
-            _titleTexts(),
-            SizedBox(height: 12),
-            _searchButton(),
-            SizedBox(height: 20),
-            _categories(),
-            SizedBox(height: 30),
-            recommendedPost(),
-            SizedBox(height: 30),
-            Expanded(child: _jobPosts()),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _titleTexts(),
+              SizedBox(height: 12),
+              _searchButton(),
+              SizedBox(height: 20),
+              _categories(),
+              SizedBox(height: 30),
+              recommendedPost(),
+              SizedBox(height: 30),
+              _jobPosts(),
+            ],
+          ),
         ),
       ),
     );
@@ -122,22 +124,22 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         SizedBox(height: 25),
         if (controller.isLoading)
-          Expanded(child: Center(child: CircularProgressIndicator()))
+          Center(child: CircularProgressIndicator())
         else
-          Expanded(
-            child: ListView.builder(
-              itemCount: controller.model.length,
-              itemBuilder: (context, index) {
-                final job = controller.model[index];
-                return jobCard(
-                  context: context,
-                  job: job,
-                  controller: controller,
-                  onBookmarkChanged: () => setState(() {}),
-                  onTap: () => toPage(context, PostDetailScreen()),
-                );
-              },
-            ),
+          ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: controller.model.length,
+            itemBuilder: (context, index) {
+              final job = controller.model[index];
+              return jobCard(
+                context: context,
+                job: job,
+                controller: controller,
+                onBookmarkChanged: () => setState(() {}),
+                onTap: () => toPage(context, PostDetailScreen()),
+              );
+            },
           ),
       ],
     );
@@ -215,16 +217,16 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 children: [
                   Text(
-                    "더보디",
+                    "더보기",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: subText,
                     ),
                   ),
                   Icon(
                     Icons.arrow_forward_ios_outlined,
-                    size: 25,
+                    size: 20,
                     color: subText,
                   ),
                 ],
@@ -233,87 +235,107 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         SizedBox(height: 25),
-        if (controller.isLoading)
+        if (controller.isRecommendedLoading)
           SizedBox(
-            height: 400,
+            height: 220,
             child: Center(child: CircularProgressIndicator()),
           )
         else
           SizedBox(
-            height: 400,
+            height: 220,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: controller.recommendedModel.length,
+
               itemBuilder: (context, index) {
                 final job = controller.recommendedModel[index];
 
-                return Container(
-                  padding: EdgeInsets.all(14),
-
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Color(0xffe6e6e6)),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          dDayWidget(job.dDay, job.recruitStatus),
-
-                          GestureDetector(
-                            onTap: () async {
-                              if (!isLogin) {
-                                await showLoginBottomSheet(context);
-                              } else {
-                                await controller.addBookmark(job.id);
-                              }
-                              setState(() {});
-                            },
-                            child: Icon(
-                              controller.isBookmark(job.id)
-                                  ? Icons.bookmark
-                                  : Icons.bookmark_outline_outlined,
-                              color: controller.isBookmark(job.id)
-                                  ? mainColor
-                                  : subText,
-                              size: 30,
+                return GestureDetector(
+                  onTap: () => toPage(context, PostDetailScreen()),
+                  child: Container(
+                    width: 160,
+                    padding: EdgeInsets.all(14),
+                    margin: EdgeInsets.only(right: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Color(0xffe6e6e6)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            dDayWidget(
+                              dDay: job.dDay,
+                              deadlineLabel: job.deadlineLabel,
+                              state: job.recruitStatus,
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                if (!isLogin) {
+                                  await showLoginBottomSheet(context);
+                                } else {
+                                  await controller.addBookmark(job.id);
+                                }
+                                setState(() {});
+                              },
+                              child: Icon(
+                                controller.isBookmark(job.id)
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_outline_outlined,
+                                color: controller.isBookmark(job.id)
+                                    ? mainColor
+                                    : subText,
+                                size: 30,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.center,
+                  
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              job.companyLogo,
+                              width: 55,
+                              alignment: Alignment.center,
                             ),
                           ),
-                        ],
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(job.companyLogo, width: 55),
-                      ),
-
-                      Text(
-                        job.jobTitle,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-                      Text(
-                        "${job.location} • ${job.employmentType}",
-                        style: TextStyle(
-                          color: subText,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
+                  
+                        SizedBox(height: 12),
+                        Text(
+                          job.jobTitle,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        job.salary,
-                        style: TextStyle(
-                          color: mainColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                        SizedBox(height: 2),
+                        Text(
+                          "${job.location} • ${job.employmentType}",
+                          style: TextStyle(
+                            color: subText,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 12),
+                        Text(
+                          job.salary,
+                          style: TextStyle(
+                            color: mainColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -323,19 +345,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget dDayWidget(String dDay, String state) {
+  Widget dDayWidget({
+    required String dDay,
+    required String deadlineLabel,
+    required String state,
+  }) {
     return Container(
       decoration: BoxDecoration(
-        color: dDayColor(state).withOpacity(0.6),
+        color: dDayColor(state).withOpacity(0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Text(
-        dDay,
+        state == 'CLOSED' ? deadlineLabel : dDay,
         style: TextStyle(
           color: dDayColor(state),
-          fontWeight: FontWeight.w500,
-          fontSize: 12,
+          fontWeight: FontWeight.w900,
+          fontSize: 11,
         ),
       ),
     );

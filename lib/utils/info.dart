@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-String baseUrl = "http://10.0.2.2:3000";
+String baseUrl = "http://10.0.2.2:8000";
 ValueNotifier<String> userName = ValueNotifier("게스트");
 String tkn = '';
 
@@ -14,10 +14,10 @@ Color bgColor = Color(0xffF5F5F7);
 Color titleText = Color(0xff666666);
 Color subText = Color(0xff999999);
 
-Color dDayColor (String state){
-  if(state == 'OPEN') return Color(0xff3366FF);
-  if(state == 'CLOSING') return Color(0xffFF9500);
-  return Color(0xff999999);
+Color dDayColor(String state) {
+  if (state == 'OPEN') return Color(0xff3366FF);
+  if (state == 'CLOSED') return Color(0xff999999);
+  return Color(0xffFF9500);
 }
 
 List<Map<String, String?>> categoryText = [
