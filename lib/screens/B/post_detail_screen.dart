@@ -17,4 +17,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
   }
+
+  appbar(){
+
+  }
 }
