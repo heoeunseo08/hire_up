@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:math';
+import 'package:hire_up/model/detail_job_model.dart';
 import 'package:hire_up/model/job_model.dart';
 import 'package:hire_up/model/recommended_model.dart';
 import 'package:hire_up/utils/info.dart';
@@ -77,6 +79,7 @@ class JobController {
     }
     isLoading = false;
   }
+
   Future<void> recommendedJobs() async {
     isRecommendedLoading = true;
     error = null;
@@ -99,5 +102,23 @@ class JobController {
       error = "네트워크 오류가 발생했습니다.";
     }
     isRecommendedLoading = false;
+  }
+
+  Future<DetailJobModel?> detailsJob(int id) async {
+    error = null;
+    try {
+      final uri = Uri.parse('$baseUrl/jobs/$id');
+      final res = await http.get(uri);
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        return DetailJobModel.from(data['data']);
+      } else {
+        error = "상세 공고를 불러오지 못했습니다.";
+      }
+    } catch (e) {
+      error = "네트워크 오류가 발생했습니다.";
+    }
+    return null;
   }
 }

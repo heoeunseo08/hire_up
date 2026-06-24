@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 job: job,
                 controller: controller,
                 onBookmarkChanged: () => setState(() {}),
-                onTap: () => toPage(context, PostDetailScreen()),
+                onTap: () => toPage(context, PostDetailScreen(id: job.id)),
               );
             },
           ),
@@ -251,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 final job = controller.recommendedModel[index];
 
                 return GestureDetector(
-                  onTap: () => toPage(context, PostDetailScreen()),
+                  onTap: () => toPage(context, PostDetailScreen(id: job.id)),
                   child: Container(
                     width: 160,
                     padding: EdgeInsets.all(14),

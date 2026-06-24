@@ -84,7 +84,7 @@ class _RecommendedScreenState extends State<RecommendedScreen> {
                   await controller.removeBookmark(job.id);
                   setState(() {});
                 },
-                onTap: () => toPage(context, PostDetailScreen()),
+                onTap: () => toPage(context, PostDetailScreen(id: job.id)),
               ),
             );
           },
