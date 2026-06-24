@@ -95,6 +95,10 @@ class _PostDetailScreenState extends State<PostDetailScreen>
       child: Column(
         children: [
           Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
             child: Column(
               children: [
                 ClipRRect(
@@ -102,6 +106,60 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                   child: Image.asset(
                     jobModel!.companyLogo,
                     width: 100,
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(99),
+                    color: dDayColor(jobModel!.recruitStatus),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  child: Text(
+                    jobModel!.recruitStatus == 'OPEN'
+                        ? '채용중'
+                        : jobModel!.recruitStatus == 'CLOSING'
+                        ? "마감임박"
+                        : "마감",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                Text(
+                  jobModel!.jobTitle,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => showMessage('아직 준비중입니다.'),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(99),
+                      color: dDayColor(jobModel!.recruitStatus),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    child: Row(
+                      children: [
+                        Text(
+                          jobModel!.companyName,
+                          style: TextStyle(
+                            color: titleText,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_outlined,
+                          color: titleText,
+                          size: 20,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
