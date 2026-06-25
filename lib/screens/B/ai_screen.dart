@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hire_up/screens/B/ai_log_screen.dart';
+import 'package:hire_up/screens/B/ai_play_screen.dart';
 import 'package:hire_up/utils/widget.dart';
 
 import '../../utils/info.dart';
@@ -451,25 +452,32 @@ class _AiScreenState extends State<AiScreen> {
     ),
   );
 
-  startButton() => Container(
-    padding: EdgeInsets.symmetric(vertical: 14),
-    decoration: BoxDecoration(
-      color: mainColor,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: Row(
-      mainAxisAlignment: .center,
-      children: [
-        Icon(CupertinoIcons.sparkles, color: Colors.white,size: 25),
-        Text(
-          "면접 시작하기",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 16,
+  startButton() => GestureDetector(
+    onTap: () => toPage(context, AiPlayScreen(
+      job: jobList[jobSelectIndex],
+      age: ageTitles[ageSelectIndex],
+      type: typeTitles[typeSelectIndex],
+    )),
+    child: Container(
+      padding: EdgeInsets.symmetric(vertical: 14),
+      decoration: BoxDecoration(
+        color: mainColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: .center,
+        children: [
+          Icon(CupertinoIcons.sparkles, color: Colors.white,size: 25),
+          Text(
+            "면접 시작하기",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 

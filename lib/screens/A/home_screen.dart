@@ -277,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 if (!isLogin) {
                                   await showLoginBottomSheet(context);
                                 } else {
-                                  await controller.addBookmark(job.id);
+                                  await controller.toggleBookmark(job.id);
                                 }
                                 setState(() {});
                               },

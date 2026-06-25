@@ -93,7 +93,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                         if (!isLogin) {
                           await showLoginBottomSheet(context);
                         } else {
-                          await controller.addBookmark(jobModel!.id);
+                          await controller.toggleBookmark(jobModel!.id);
                         }
                         setState(() {});
                       },
@@ -164,20 +164,20 @@ class _PostDetailScreenState extends State<PostDetailScreen>
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        cirButtton(
+        cirButton(
           icon: Icons.arrow_back_ios_new_outlined,
           color: titleText,
           onTap: () => Navigator.pop(context),
         ),
         Row(
           children: [
-            cirButtton(
+            cirButton(
               icon: Icons.ios_share,
               color: titleText,
               onTap: () => share(),
             ),
             SizedBox(width: 15),
-            cirButtton(
+            cirButton(
               icon: controller.isBookmark(jobModel!.id)
                   ? Icons.bookmark
                   : Icons.bookmark_outline_outlined,
@@ -186,7 +186,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                 if (!isLogin) {
                   await showLoginBottomSheet(context);
                 } else {
-                  await controller.addBookmark(jobModel!.id);
+                  await controller.toggleBookmark(jobModel!.id);
                 }
                 setState(() {});
               },
@@ -304,7 +304,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                     width: 90,
                     child: Column(
                       children: [
-                        cirButtton(icon: Icons.send, color: mainColor),
+                        cirButton(icon: Icons.send, color: mainColor),
                         SizedBox(height: 10),
                         Text(
                           jobModel!.location,
@@ -322,7 +322,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                     width: 90,
                     child: Column(
                       children: [
-                        cirButtton(
+                        cirButton(
                           icon: CupertinoIcons.briefcase,
                           color: mainColor,
                         ),
@@ -343,7 +343,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                     width: 90,
                     child: Column(
                       children: [
-                        cirButtton(
+                        cirButton(
                           icon: Icons.calendar_month,
                           color: mainColor,
                         ),
@@ -730,29 +730,4 @@ class _PostDetailScreenState extends State<PostDetailScreen>
     );
   }
 
-  cirButtton({
-    required IconData icon,
-    required Color color,
-    GestureTapCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: color.withOpacity(0.1),
-        ),
-        child: Center(
-          child: Icon(
-            icon,
-            color: color,
-            size: 22,
-          ),
-        ),
-      ),
-    );
-  }
 }

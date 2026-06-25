@@ -27,7 +27,7 @@ class JobController {
     bookmarks = ids.map((e) => int.parse(e)).toList();
   }
 
-  Future<void> addBookmark(int id) async {
+  Future<void> toggleBookmark(int id) async {
     final pref = await SharedPreferences.getInstance();
     if (bookmarks.contains(id)) {
       bookmarks.remove(id);
@@ -108,17 +108,14 @@ class JobController {
     try {
       final uri = Uri.parse('$baseUrl/jobs/$id');
       final res = await http.get(uri);
-      print('결과:${res.body}');
 
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        return DetailJobModel.from(data['data']);
+        return DetailJobModel.from(jsonDecode(res.body)['data']);
       } else {
         error = "상세 공고를 불러오지 못했습니다.";
       }
-    } catch (e) {
+    } catch (_) {
       error = "네트워크 오류가 발생했습니다.";
-      print('$error:$e');
     }
     return null;
   }
