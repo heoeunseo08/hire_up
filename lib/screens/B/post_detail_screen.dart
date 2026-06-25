@@ -178,7 +178,9 @@ class _PostDetailScreenState extends State<PostDetailScreen>
             ),
             SizedBox(width: 15),
             cirButtton(
-              icon: CupertinoIcons.bookmark,
+              icon: controller.isBookmark(jobModel!.id)
+                  ? Icons.bookmark
+                  : Icons.bookmark_outline_outlined,
               color: titleText,
               onTap: () async {
                 if (!isLogin) {
