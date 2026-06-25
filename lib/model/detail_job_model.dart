@@ -43,8 +43,8 @@ class DetailJobModel {
     employmentType: json['employmentType'],
     deadline: json['deadline'],
     positionIntro: json['positionIntro'],
-    tasks: json['tasks'],
-    qualifications: json['qualifications'],
-    benefits: json['benefits'],
+    tasks: List<String>.from(json['tasks']),
+    qualifications: List<String>.from(json['qualifications']),
+    benefits: List<String>.from(json['benefits']),
   );
 }

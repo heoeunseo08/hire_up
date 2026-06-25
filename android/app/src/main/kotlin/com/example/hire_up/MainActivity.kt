@@ -20,17 +20,37 @@ class MainActivity : FlutterActivity() {
 
         val smsChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, smsChannelName)
 
-        smsChannel.setMethodCallHandler { call, _ ->
-            if (call.method == "checkPermission") {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        android.Manifest.permission.RECEIVE_SMS,
-                        android.Manifest.permission.READ_SMS
-                    ),
-                    100
-                )
+        smsChannel.setMethodCallHandler { call, result ->
+
+            when(call.method){
+                "checkPermission" ->{
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            android.Manifest.permission.RECEIVE_SMS,
+                            android.Manifest.permission.READ_SMS
+                        ),
+                        100
+                    )
+                }
+                "share"->{
+                    val  text = call.argument<String>("text") ?: ""
+                    val  intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT,text)
+                    }
+
+                    startActivity(
+                        Intent.createChooser(
+                            intent,"채용정보 공유"
+                        )
+                    )
+                    result.success(true)
+                }
+                else -> result.notImplemented()
+
             }
+
         }
 
         smsReceiver = object : BroadcastReceiver() {

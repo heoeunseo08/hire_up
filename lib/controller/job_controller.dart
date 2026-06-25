@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:hire_up/model/detail_job_model.dart';
 import 'package:hire_up/model/job_model.dart';
 import 'package:hire_up/model/recommended_model.dart';
@@ -109,6 +108,7 @@ class JobController {
     try {
       final uri = Uri.parse('$baseUrl/jobs/$id');
       final res = await http.get(uri);
+      print('결과:${res.body}');
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
@@ -118,6 +118,7 @@ class JobController {
       }
     } catch (e) {
       error = "네트워크 오류가 발생했습니다.";
+      print('$error:$e');
     }
     return null;
   }

@@ -17,6 +17,7 @@ class RecommendedModel {
     required this.companyLogo,
     required this.jobTitle,
     required this.location,
+
     required this.employmentType,
     required this.career,
     required this.salary,
