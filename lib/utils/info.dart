@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 String baseUrl = "http://10.0.2.2:8000";
 ValueNotifier<String> userName = ValueNotifier("게스트");
 String tkn = '';
+int userId =  0;
 
 final GlobalKey<ScaffoldMessengerState> globalKey = GlobalKey();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey();

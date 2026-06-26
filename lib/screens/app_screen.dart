@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hire_up/screens/A/home_screen.dart';
 import 'package:hire_up/screens/B/ai_screen.dart';
-import 'package:hire_up/screens/profile_screen.dart';
-import 'package:hire_up/screens/resume_screen.dart';
+import 'package:hire_up/screens/C/profile_screen.dart';
+import 'package:hire_up/screens/C/resume_screen.dart';
 import 'package:hire_up/utils/info.dart';
 
 class AppScreen extends StatefulWidget {
@@ -15,12 +15,18 @@ class AppScreen extends StatefulWidget {
 class _AppScreenState extends State<AppScreen> {
   int currentIndex = 0;
 
-  List<Widget> pageList = [
-    HomeScreen(),
-    AiScreen(),
-    ResumeScreen(),
-    ProfileScreen(),
-  ];
+  late List<Widget> pageList;
+
+  @override
+  void initState() {
+    super.initState();
+    pageList = [
+      HomeScreen(),
+      AiScreen(),
+      ResumeScreen(),
+      ProfileScreen(onTabChange: (index) => setState(() => currentIndex = index)),
+    ];
+  }
 
   List<Icon> iconList = [
     Icon(Icons.home),

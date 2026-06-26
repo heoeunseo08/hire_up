@@ -114,15 +114,19 @@ class _AiPlayScreenState extends State<AiPlayScreen> {
         },
       );
 
-      final res = await http.get(uri, headers: {
-        if (isLogin) 'Authorization': 'Bearer $tkn',
-      });
+      final res = await http.get(
+        uri,
+        headers: {
+          if (isLogin) 'Authorization': 'Bearer $tkn',
+        },
+      );
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         setState(() {
-          questions =
-              List<Map<String, dynamic>>.from(data['data']['questions']);
+          questions = List<Map<String, dynamic>>.from(
+            data['data']['questions'],
+          );
           total = data['data']['total'];
           isLoading = false;
         });
@@ -148,8 +152,9 @@ class _AiPlayScreenState extends State<AiPlayScreen> {
   // ── 재생 위치 폴링 + 파형 + 완료 감지 ─────────────────────────
   void _startPositionTimer() {
     positionTimer?.cancel();
-    positionTimer =
-        Timer.periodic(const Duration(milliseconds: 150), (_) async {
+    positionTimer = Timer.periodic(const Duration(milliseconds: 150), (
+      _,
+    ) async {
       final ms = await _audio.currentTime();
       final amp = await _audio.getAmplitude();
       final completed = await _audio.isCompleted();
@@ -163,9 +168,7 @@ class _AiPlayScreenState extends State<AiPlayScreen> {
           // 진폭 기반 파형
           waveHeights = List.generate(
             20,
-            (i) => amp > 5
-                ? 0.15 + (amp / 128.0) * _random.nextDouble()
-                : 0.15,
+            (i) => amp > 5 ? 0.15 + (amp / 128.0) * _random.nextDouble() : 0.15,
           );
         } else {
           waveHeights = List.generate(20, (_) => 0.15);
@@ -288,7 +291,8 @@ class _AiPlayScreenState extends State<AiPlayScreen> {
   }
 
   String _mouthImage() {
-    if (isAnswering || amplitude <= 5) return 'assets/images/lv0_mouth_closed.png';
+    if (isAnswering || amplitude <= 5)
+      return 'assets/images/lv0_mouth_closed.png';
     if (amplitude <= 40) return 'assets/images/lv1_mouth_small.png';
     if (amplitude <= 80) return 'assets/images/lv2_mouth_medium.png';
     return 'assets/images/lv3_mouth_large.png';
@@ -351,50 +355,59 @@ class _AiPlayScreenState extends State<AiPlayScreen> {
   }
 
   AppBar _appBar() => AppBar(
-        backgroundColor: bgColor,
-        surfaceTintColor: bgColor,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: Image.asset('assets/simbol/logo_vertical.png',
-              fit: BoxFit.contain),
+    backgroundColor: bgColor,
+    surfaceTintColor: bgColor,
+    leading: Padding(
+      padding: const EdgeInsets.only(left: 16),
+      child: Image.asset(
+        'assets/simbol/logo_vertical.png',
+        fit: BoxFit.contain,
+      ),
+    ),
+    title: const Text(
+      "AI 모의 면접",
+      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+    ),
+    centerTitle: true,
+    actions: [
+      TextButton(
+        onPressed: _showEndDialog,
+        child: const Text(
+          "면접 종료",
+          style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
         ),
-        title: const Text(
-          "AI 모의 면접",
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-        ),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: _showEndDialog,
-            child: const Text("면접 종료",
-                style: TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.w500)),
-          ),
-        ],
-      );
+      ),
+    ],
+  );
 
   Widget _header() => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        "${widget.job} 면접",
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+      ),
+      const SizedBox(height: 10),
+      Row(
         children: [
-          Text(
-            "${widget.job} 면접",
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 10),
           Text(
             "질문 ${currentIndex + 1} / $total",
             style: TextStyle(color: subText, fontWeight: FontWeight.w500),
           ),
-          const SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: total > 0 ? (currentIndex + 1) / total : 0,
-            backgroundColor: Colors.grey[200],
-            color: mainColor,
-            borderRadius: BorderRadius.circular(99),
-            minHeight: 6,
+          const SizedBox(width: 8),
+          Expanded(
+            child: LinearProgressIndicator(
+              value: total > 0 ? (currentIndex + 1) / total : 0,
+              backgroundColor: Colors.grey[200],
+              color: mainColor,
+              borderRadius: BorderRadius.circular(99),
+              minHeight: 6,
+            ),
           ),
         ],
-      );
+      ),
+    ],
+  );
 
   Widget _questionCard(Map<String, dynamic> question, int duration) =>
       Container(
@@ -447,15 +460,13 @@ class _AiPlayScreenState extends State<AiPlayScreen> {
             // 질문 텍스트
             Text(
               "Q. ${question['questionText']}",
-              style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             // 상태 뱃지
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: isAnswering
                     ? Colors.green.withOpacity(0.1)
@@ -476,30 +487,33 @@ class _AiPlayScreenState extends State<AiPlayScreen> {
       );
 
   Widget _nextButton(bool isLast) => GestureDetector(
-        onTap: isLast ? _onComplete : _onNext,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: mainColor,
-            borderRadius: BorderRadius.circular(16),
+    onTap: isLast ? _onComplete : _onNext,
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: mainColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            isLast ? "면접 완료" : "다음 질문",
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                isLast ? "면접 완료" : "다음 질문",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_ios_rounded,
-                  color: Colors.white, size: 16),
-            ],
+          const SizedBox(width: 8),
+          const Icon(
+            Icons.arrow_forward_ios_rounded,
+            color: Colors.white,
+            size: 16,
           ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 }
