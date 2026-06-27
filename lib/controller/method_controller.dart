@@ -6,4 +6,10 @@ class MethodController {
   Future<void> checkPermission() async {
     await smsChannel.invokeMethod('checkPermission');
   }
+  
+  Future<void> share(String text) async {
+    await smsChannel.invokeMethod('share',{
+      'text' : text
+    });
+  }
 }

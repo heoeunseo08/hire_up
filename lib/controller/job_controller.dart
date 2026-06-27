@@ -1,12 +1,16 @@
 import 'dart:convert';
+import 'package:hire_up/model/detail_job_model.dart';
 import 'package:hire_up/model/job_model.dart';
+import 'package:hire_up/model/recommended_model.dart';
 import 'package:hire_up/utils/info.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class JobController {
   List<JobModel> model = [];
+  List<RecommendedModel> recommendedModel = [];
   bool isLoading = false;
+  bool isRecommendedLoading = false;
   String? error;
 
   String sort = 'latest';
@@ -23,7 +27,7 @@ class JobController {
     bookmarks = ids.map((e) => int.parse(e)).toList();
   }
 
-  Future<void> addBookmark(int id) async {
+  Future<void> toggleBookmark(int id) async {
     final pref = await SharedPreferences.getInstance();
     if (bookmarks.contains(id)) {
       bookmarks.remove(id);
@@ -73,5 +77,46 @@ class JobController {
       error = "네트워크 오류가 발생했습니다.";
     }
     isLoading = false;
+  }
+
+  Future<void> recommendedJobs() async {
+    isRecommendedLoading = true;
+    error = null;
+
+    try {
+      final uri = Uri.parse(
+        '$baseUrl/jobs/recommended',
+      );
+      final res = await http.get(uri);
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        recommendedModel = (data['data']['items'] as List)
+            .map((e) => RecommendedModel.fromJson(e))
+            .toList();
+      } else {
+        error = "공고를 불러오지 못했습니다.";
+      }
+    } catch (e) {
+      error = "네트워크 오류가 발생했습니다.";
+    }
+    isRecommendedLoading = false;
+  }
+
+  Future<DetailJobModel?> detailsJob(int id) async {
+    error = null;
+    try {
+      final uri = Uri.parse('$baseUrl/jobs/$id');
+      final res = await http.get(uri);
+
+      if (res.statusCode == 200) {
+        return DetailJobModel.from(jsonDecode(res.body)['data']);
+      } else {
+        error = "상세 공고를 불러오지 못했습니다.";
+      }
+    } catch (_) {
+      error = "네트워크 오류가 발생했습니다.";
+    }
+    return null;
   }
 }

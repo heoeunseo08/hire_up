@@ -117,7 +117,7 @@ class _SearchScreenState extends State<SearchScreen> {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PostDetailScreen(),
+                  builder: (context) => PostDetailScreen(id: job.id),
                 ),
               ),
               child: Container(

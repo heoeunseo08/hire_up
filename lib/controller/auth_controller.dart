@@ -26,15 +26,18 @@ class AuthController {
         final data = jsonDecode(res.body);
         tkn = data['data']['token'];
         userName.value = data['data']['user']['name'];
+        userId = data['data']['user']['id'];
 
         if (keepLogin) {
           final pref = await SharedPreferences.getInstance();
           await pref.setString('token', tkn);
           await pref.setString('userName', userName.value);
+          await pref.setInt('userId', userId);
         } else {
           final pref = await SharedPreferences.getInstance();
           await pref.remove('token');
           await pref.remove('userName');
+          await pref.remove('userId');
         }
         return true;
       } else {
@@ -173,5 +176,6 @@ class AuthController {
     final pref = await SharedPreferences.getInstance();
     tkn = pref.getString('token') ?? '';
     userName.value = pref.getString('userName') ?? '게스트';
+    userId = pref.getInt('userId') ?? 0;
   }
 }
