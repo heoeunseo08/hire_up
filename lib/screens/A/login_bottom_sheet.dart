@@ -62,7 +62,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
           Text(
             "HireUp에 오신 것을 환영합니다",
             style: TextStyle(
-              color: titleText,
+              color: titleColor,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -95,9 +95,9 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
             focusedBorder: _border(),
             hint: Text(
               "이메일을 입력해주세요",
-              style: TextStyle(color: subText, fontSize: 16),
+              style: TextStyle(color: subColor, fontSize: 16),
             ),
-            prefixIcon: Icon(Icons.email_outlined, color: subText),
+            prefixIcon: Icon(Icons.email_outlined, color: subColor),
           ),
         ),
         SizedBox(height: 16),
@@ -112,12 +112,12 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
             focusedBorder: _border(),
             hint: Text(
               "비밀번호를 입력해주세요",
-              style: TextStyle(color: subText, fontSize: 16),
+              style: TextStyle(color: subColor, fontSize: 16),
             ),
             prefixIcon: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(Icons.lock_outline_rounded, color: subText),
+                Icon(Icons.lock_outline_rounded, color: subColor),
                 Positioned(
                   bottom: 18,
                   child: Container(
@@ -131,7 +131,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
             suffixIcon: GestureDetector(
               onTap: () => setState(() => isObscureText = !isObscureText),
               child: Icon(
-                color: subText,
+                color: subColor,
                 isObscureText
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
@@ -213,7 +213,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
             Text(
               "로그인 상태 유지",
               style: TextStyle(
-                color: titleText,
+                color: titleColor,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -244,7 +244,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
           children: [
             Expanded(
               child: Divider(
-                color: subText,
+                color: subColor,
                 height: 1,
               ),
             ),
@@ -253,7 +253,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
               child: Text(
                 "또는",
                 style: TextStyle(
-                  color: subText,
+                  color: subColor,
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
                 ),
@@ -261,7 +261,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
             ),
             Expanded(
               child: Divider(
-                color: subText,
+                color: subColor,
                 height: 1,
               ),
             ),
@@ -274,7 +274,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
             Text(
               "계정이 없으신가요? ",
               style: TextStyle(
-                color: subText,
+                color: subColor,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),

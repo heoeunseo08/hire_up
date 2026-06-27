@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/resume_controller.dart';
 import 'package:hire_up/utils/info.dart';
-import 'package:hire_up/utils/utils.dart';
+import 'package:hire_up/utils/widget.dart';
+
+// ── 직무 목록 ──────────────────────────────────────────────────
+const _jobRoles = [
+  '프론트엔드 개발자',
+  '백엔드 개발자',
+  'UI/UX 디자이너',
+  '모바일 앱 개발자',
+  '데이터 분석가',
+  '기획자/PM',
+];
 
 class ResumeEditScreen extends StatefulWidget {
-  final ResumeController controller;
-
-  const ResumeEditScreen({super.key, required this.controller});
+  final int? id;
+  const ResumeEditScreen({super.key, this.id});
 
   @override
   State<ResumeEditScreen> createState() => _ResumeEditScreenState();
@@ -14,115 +23,121 @@ class ResumeEditScreen extends StatefulWidget {
 
 class _ResumeEditScreenState extends State<ResumeEditScreen>
     with SingleTickerProviderStateMixin {
-  late ResumeController controller;
-  late TabController tabController;
+  late final TabController _tab;
+  final ResumeController _controller = ResumeController();
 
-  final _titleCtrl = TextEditingController();
-  final _jobRoleCtrl = TextEditingController();
+  // ── 기본정보 ──────────────────────────────────────────────────
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _birthCtrl = TextEditingController();
+  final _locationCtrl = TextEditingController();
+  final _linkCtrl = TextEditingController();
   final _oneLineCtrl = TextEditingController();
   final _introCtrl = TextEditingController();
-  final _skillInputCtrl = TextEditingController();
+  String? _selectedJobRole;
+
+  // ── 학력 ──────────────────────────────────────────────────────
+  List<Map<String, String>> _educations = [];
+
+  // ── 경력 ──────────────────────────────────────────────────────
+  List<Map<String, dynamic>> _careers = [];
+
+  // ── 프로젝트 ──────────────────────────────────────────────────
+  List<Map<String, dynamic>> _projects = [];
+
+  // ── 기술스택 ──────────────────────────────────────────────────
+  final _skillCtrl = TextEditingController();
+  List<String> _skills = [];
 
   @override
   void initState() {
     super.initState();
-    controller = widget.controller;
-    tabController = TabController(length: 4, vsync: this);
-    _titleCtrl.text = controller.title;
-    _jobRoleCtrl.text = controller.jobRole;
-    _oneLineCtrl.text = controller.oneLineIntro;
-    _introCtrl.text = controller.intro;
+    _tab = TabController(length: 4, vsync: this);
   }
 
   @override
   void dispose() {
-    tabController.dispose();
-    _titleCtrl.dispose();
-    _jobRoleCtrl.dispose();
+    _tab.dispose();
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _phoneCtrl.dispose();
+    _birthCtrl.dispose();
+    _locationCtrl.dispose();
+    _linkCtrl.dispose();
     _oneLineCtrl.dispose();
     _introCtrl.dispose();
-    _skillInputCtrl.dispose();
+    _skillCtrl.dispose();
     super.dispose();
   }
 
+  // ── 저장 ─────────────────────────────────────────────────────
   Future<void> _save() async {
-    controller.title = _titleCtrl.text;
-    controller.jobRole = _jobRoleCtrl.text;
-    controller.oneLineIntro = _oneLineCtrl.text;
-    controller.intro = _introCtrl.text;
+    final jobRole = _selectedJobRole ?? '';
+    final body = {
+      'title': jobRole.isNotEmpty ? '$jobRole 이력서' : '이력서',
+      'jobRole': jobRole,
+      'oneLineIntro': _oneLineCtrl.text,
+      'intro': _introCtrl.text,
+      'educations': _educations,
+      'careers': _careers,
+      'projects': _projects,
+      'skills': _skills,
+    };
 
-    final success = await controller.saveResume();
-    if (success) {
-      showMessage("이력서가 저장되었습니다.");
+    final id = await _controller.save(id: widget.id, body: body);
+    if (!mounted) return;
+
+    if (id != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('이력서가 저장되었습니다')),
+      );
       Navigator.pop(context);
     } else {
-      showMessage(controller.error ?? '저장에 실패했습니다.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_controller.error ?? '저장에 실패했습니다.')),
+      );
     }
   }
-
-  OutlineInputBorder _border([Color? color]) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: color ?? Color(0xffE8E8E8)),
-      );
-
-  InputDecoration _inputDeco(String hint) => InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: subText, fontSize: 14),
-        fillColor: bgColor,
-        filled: true,
-        border: _border(),
-        enabledBorder: _border(),
-        focusedBorder: _border(mainColor),
-        contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      );
-
-  TextStyle _labelStyle() =>
-      TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: titleText);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => Navigator.pop(context),
+        backgroundColor: bgColor,
+        surfaceTintColor: bgColor,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: const Icon(Icons.arrow_back_ios, color: Colors.black),
         ),
-        title: Text(
-          "이력서 수정",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-        ),
+        title: const Text('이력서 수정',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+        centerTitle: true,
         actions: [
           TextButton(
             onPressed: _save,
-            child: Text(
-              "저장",
-              style: TextStyle(
-                color: mainColor,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            child: Text('저장',
+                style: TextStyle(
+                    color: mainColor, fontWeight: FontWeight.w600)),
           ),
         ],
         bottom: TabBar(
-          controller: tabController,
+          controller: _tab,
           labelColor: mainColor,
-          unselectedLabelColor: subText,
+          unselectedLabelColor: subColor,
           indicatorColor: mainColor,
-          labelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          tabs: [
-            Tab(text: "기본 정보"),
-            Tab(text: "경력"),
-            Tab(text: "프로젝트"),
-            Tab(text: "기술 스택"),
+          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          tabs: const [
+            Tab(text: '기본 정보'),
+            Tab(text: '경력'),
+            Tab(text: '프로젝트'),
+            Tab(text: '기술 스택'),
           ],
         ),
       ),
       body: TabBarView(
-        controller: tabController,
+        controller: _tab,
         children: [
           _basicInfoTab(),
           _careerTab(),
@@ -130,25 +145,24 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
           _skillTab(),
         ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(color: Colors.white),
-        padding: EdgeInsets.fromLTRB(14, 12, 14, 30),
-        child: GestureDetector(
-          onTap: _save,
-          child: Container(
-            alignment: Alignment.center,
-            height: 50,
-            decoration: BoxDecoration(
-              color: mainColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              "저장하기",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: GestureDetector(
+            onTap: _save,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: mainColor,
+                borderRadius: BorderRadius.circular(14),
               ),
+              child: const Text('저장하기',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16)),
             ),
           ),
         ),
@@ -156,393 +170,256 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
     );
   }
 
+  // ══════════════════════════════════════════════════════════════
+  // 기본정보 탭
+  // ══════════════════════════════════════════════════════════════
   Widget _basicInfoTab() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _section(
-            "프로필",
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        color: Color(0xffECECEC),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(Icons.camera_alt_outlined, color: subText, size: 28),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("이름", style: _labelStyle()),
-                          SizedBox(height: 6),
-                          TextField(controller: _titleCtrl, decoration: _inputDeco("예: 홍길동")),
-                          SizedBox(height: 12),
-                          Text("직무", style: _labelStyle()),
-                          SizedBox(height: 6),
-                          TextField(controller: _jobRoleCtrl, decoration: _inputDeco("예: 프론트엔드 개발자")),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Text("한 줄 소개", style: _labelStyle()),
-                SizedBox(height: 6),
-                TextField(
-                  controller: _oneLineCtrl,
-                  maxLength: 50,
-                  onChanged: (_) => setState(() {}),
-                  decoration: _inputDeco("예: 사용자 경험을 고민하는 개발자"),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 16),
-          _section(
-            "소개",
-            child: TextField(
-              controller: _introCtrl,
-              maxLength: 300,
-              maxLines: 5,
-              onChanged: (_) => setState(() {}),
-              decoration: _inputDeco("주요 경험, 강점, 목표를 자유롭게 작성해주세요"),
-            ),
-          ),
-          SizedBox(height: 16),
-          _section(
-            "학력",
-            trailing: GestureDetector(
-              onTap: _showAddEducationSheet,
-              child: Text(
-                "+ 추가",
-                style: TextStyle(color: mainColor, fontSize: 14, fontWeight: FontWeight.w600),
-              ),
-            ),
-            child: Column(
-              children: controller.educations.asMap().entries.map((e) {
-                return Container(
-                  margin: EdgeInsets.only(bottom: 8),
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(10)),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "${e.value.schoolName}·${e.value.major}",
-                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                            ),
-                            if (e.value.degree.isNotEmpty)
-                              Text(
-                                "${e.value.degree}·${e.value.startDate} - ${e.value.endDate}",
-                                style: TextStyle(color: subText, fontSize: 12),
-                              ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => setState(() => controller.educations.removeAt(e.key)),
-                        child: Icon(Icons.delete_outline, color: Colors.red, size: 22),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
+          _sectionCard('프로필', _profileSection()),
+          const SizedBox(height: 12),
+          _sectionCard('개인 정보', _personalSection()),
+          const SizedBox(height: 12),
+          _sectionCard('소개', _introSection()),
+          const SizedBox(height: 12),
+          _educationSection(),
+          const SizedBox(height: 80),
         ],
       ),
     );
   }
 
-  Widget _careerTab() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
-          ...controller.careers.asMap().entries.map((e) {
-            return Container(
-              margin: EdgeInsets.only(bottom: 12),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${e.value.companyName}·${e.value.position}",
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "${e.value.startDate} - ${e.value.isCurrent ? '재직중' : e.value.endDate}",
-                          style: TextStyle(color: subText, fontSize: 13),
-                        ),
-                        if (e.value.description.isNotEmpty) ...[
-                          SizedBox(height: 4),
-                          Text(e.value.description, style: TextStyle(color: titleText, fontSize: 13)),
-                        ],
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => controller.careers.removeAt(e.key)),
-                    child: Icon(Icons.delete_outline, color: Colors.red, size: 22),
-                  ),
-                ],
-              ),
-            );
-          }),
-          SizedBox(height: 12),
-          GestureDetector(
-            onTap: _showAddCareerSheet,
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: mainColor),
-              ),
-              child: Text("+ 경력 추가", style: TextStyle(color: mainColor, fontSize: 15, fontWeight: FontWeight.w600)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _projectTab() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
-          ...controller.projects.asMap().entries.map((e) {
-            return Container(
-              margin: EdgeInsets.only(bottom: 12),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(e.value.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                        SizedBox(height: 4),
-                        Text(e.value.period, style: TextStyle(color: subText, fontSize: 13)),
-                        if (e.value.description.isNotEmpty) ...[
-                          SizedBox(height: 4),
-                          Text(e.value.description, style: TextStyle(color: titleText, fontSize: 13)),
-                        ],
-                        if (e.value.techStack.isNotEmpty) ...[
-                          SizedBox(height: 8),
-                          Wrap(
-                            spacing: 6,
-                            children: e.value.techStack.map((t) => Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(6)),
-                              child: Text(t, style: TextStyle(color: titleText, fontSize: 12)),
-                            )).toList(),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => controller.projects.removeAt(e.key)),
-                    child: Icon(Icons.delete_outline, color: Colors.red, size: 22),
-                  ),
-                ],
-              ),
-            );
-          }),
-          SizedBox(height: 12),
-          GestureDetector(
-            onTap: _showAddProjectSheet,
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: mainColor),
-              ),
-              child: Text("+ 프로젝트 추가", style: TextStyle(color: mainColor, fontSize: 15, fontWeight: FontWeight.w600)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _skillTab() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(20),
-      child: _section(
-        "기술 스택",
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _profileSection() {
+    return Column(
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _skillInputCtrl,
-                    decoration: _inputDeco("기술을 입력하고 추가하세요 (예: Flutter)"),
-                    onSubmitted: (_) => _addSkill(),
-                  ),
-                ),
-                SizedBox(width: 10),
-                GestureDetector(
-                  onTap: _addSkill,
-                  child: Container(
-                    padding: EdgeInsets.all(14),
-                    decoration: BoxDecoration(color: mainColor, borderRadius: BorderRadius.circular(10)),
-                    child: Icon(Icons.add, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: controller.skills.map((s) => Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            GestureDetector(
+              onTap: () => ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text('준비 중입니다.'))),
+              child: Container(
+                width: 70,
+                height: 70,
                 decoration: BoxDecoration(
-                  color: mainColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(s, style: TextStyle(color: mainColor, fontWeight: FontWeight.w600, fontSize: 14)),
-                    SizedBox(width: 6),
-                    GestureDetector(
-                      onTap: () => setState(() => controller.skills.remove(s)),
-                      child: Icon(Icons.close, size: 16, color: mainColor),
-                    ),
-                  ],
-                ),
-              )).toList(),
+                    shape: BoxShape.circle, color: Colors.grey[200]),
+                child:
+                    Icon(Icons.camera_alt_outlined, color: subColor, size: 28),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _label('이름'),
+                  _field(key: const Key('name_field'), ctrl: _nameCtrl, hint: '홍길동'),
+                  const SizedBox(height: 10),
+                  _label('직무'),
+                  _dropdown(),
+                  const SizedBox(height: 10),
+                  _label('한 줄 소개'),
+                  _field(
+                    key: const Key('one_line_field'),
+                    ctrl: _oneLineCtrl,
+                    hint: '한 줄 소개를 입력하세요',
+                    maxLength: 50,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
+      ],
+    );
+  }
+
+  Widget _personalSection() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _label('이메일'), _field(ctrl: _emailCtrl, hint: 'hong@example.com'),
+            ])),
+            const SizedBox(width: 10),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _label('연락처'), _field(ctrl: _phoneCtrl, hint: '010-0000-0000'),
+            ])),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _label('생년월일'), _field(ctrl: _birthCtrl, hint: 'YYYY.MM.DD'),
+            ])),
+            const SizedBox(width: 10),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _label('위치'), _field(ctrl: _locationCtrl, hint: '서울특별시'),
+            ])),
+          ],
+        ),
+        const SizedBox(height: 10),
+        _label('링크'),
+        _field(ctrl: _linkCtrl, hint: 'https://github.com/...'),
+      ],
+    );
+  }
+
+  Widget _introSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: _introCtrl,
+          maxLines: 5,
+          maxLength: 300,
+          decoration: InputDecoration(
+            hintText: '자신을 소개해주세요',
+            hintStyle: TextStyle(color: subColor, fontSize: 13),
+            border: inputBorder(Colors.grey.shade300),
+            enabledBorder: inputBorder(Colors.grey.shade300),
+            focusedBorder: inputBorder(mainColor),
+            counterStyle: TextStyle(color: subColor, fontSize: 11),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _educationSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('학력',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+              GestureDetector(
+                onTap: _showAddEducation,
+                child: Text('+ 추가',
+                    style: TextStyle(
+                        color: mainColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13)),
+              ),
+            ],
+          ),
+          ..._educations.asMap().entries.map((e) => _educationCard(e.key, e.value)),
+        ],
       ),
     );
   }
 
-  void _addSkill() {
-    final text = _skillInputCtrl.text.trim();
-    if (text.isEmpty) return;
-    if (controller.skills.contains(text)) {
-      showMessage("이미 추가된 기술입니다.");
-      return;
-    }
-    setState(() {
-      controller.skills.add(text);
-      _skillInputCtrl.clear();
-    });
+  Widget _educationCard(int index, Map<String, String> edu) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+          color: bgColor, borderRadius: BorderRadius.circular(10)),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${edu['schoolName']} · ${edu['major'] ?? ''}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 14)),
+                if ((edu['degree'] ?? '').isNotEmpty ||
+                    (edu['startDate'] ?? '').isNotEmpty)
+                  Text(
+                      '${edu['degree'] ?? ''} · ${edu['startDate'] ?? ''} - ${edu['endDate'] ?? ''}',
+                      style: TextStyle(color: subColor, fontSize: 12)),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => _educations.removeAt(index)),
+            child: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+          ),
+        ],
+      ),
+    );
   }
 
-  void _showAddEducationSheet() {
+  Future<void> _showAddEducation() async {
     final schoolCtrl = TextEditingController();
     final majorCtrl = TextEditingController();
     final degreeCtrl = TextEditingController();
     final startCtrl = TextEditingController();
     final endCtrl = TextEditingController();
 
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            left: 20, right: 20, top: 24),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text("학력 추가", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-              SizedBox(height: 20),
-              Text("학교명", style: _labelStyle()),
-              SizedBox(height: 6),
-              TextField(controller: schoolCtrl, decoration: _inputDeco("예: 한국대학교")),
-              SizedBox(height: 14),
-              Text("전공", style: _labelStyle()),
-              SizedBox(height: 6),
-              TextField(controller: majorCtrl, decoration: _inputDeco("예: 컴퓨터공학과")),
-              SizedBox(height: 14),
-              Text("학위", style: _labelStyle()),
-              SizedBox(height: 6),
-              TextField(controller: degreeCtrl, decoration: _inputDeco("예: 학사")),
-              SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("입학", style: _labelStyle()),
-                        SizedBox(height: 6),
-                        TextField(controller: startCtrl, decoration: _inputDeco("YYYY.MM")),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("졸업", style: _labelStyle()),
-                        SizedBox(height: 6),
-                        TextField(controller: endCtrl, decoration: _inputDeco("YYYY.MM")),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 24),
+              const Text('학력 추가',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 16),
+              _label('학교명'), _field(ctrl: schoolCtrl, hint: '예: 한국대학교'),
+              const SizedBox(height: 10),
+              _label('전공'), _field(ctrl: majorCtrl, hint: '예: 컴퓨터공학과'),
+              const SizedBox(height: 10),
+              _label('학위'), _field(ctrl: degreeCtrl, hint: '예: 학사'),
+              const SizedBox(height: 10),
+              Row(children: [
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  _label('입학'), _field(ctrl: startCtrl, hint: 'YYYY.MM'),
+                ])),
+                const SizedBox(width: 10),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  _label('졸업'), _field(ctrl: endCtrl, hint: 'YYYY.MM'),
+                ])),
+              ]),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
                   if (schoolCtrl.text.trim().isEmpty) {
-                    showMessage("학교명을 입력해주세요.");
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(content: Text('학교명을 입력해주세요.')));
                     return;
                   }
-                  setState(() {
-                    controller.educations.add(Education(
-                      schoolName: schoolCtrl.text.trim(),
-                      major: majorCtrl.text.trim(),
-                      degree: degreeCtrl.text.trim(),
-                      startDate: startCtrl.text.trim(),
-                      endDate: endCtrl.text.trim(),
-                    ));
-                  });
+                  setState(() => _educations.add({
+                        'schoolName': schoolCtrl.text.trim(),
+                        'major': majorCtrl.text.trim(),
+                        'degree': degreeCtrl.text.trim(),
+                        'startDate': startCtrl.text.trim(),
+                        'endDate': endCtrl.text.trim(),
+                      }));
                   Navigator.pop(ctx);
                 },
-                child: _saveBtn(),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                      color: mainColor,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: const Text('저장',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15)),
+                ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -550,7 +427,77 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
     );
   }
 
-  void _showAddCareerSheet() {
+  // ══════════════════════════════════════════════════════════════
+  // 경력 탭
+  // ══════════════════════════════════════════════════════════════
+  Widget _careerTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          ..._careers.asMap().entries.map((e) => _careerCard(e.key, e.value)),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: _showAddCareer,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                border: Border.all(color: mainColor),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text('+ 경력 추가',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: mainColor, fontWeight: FontWeight.w600)),
+            ),
+          ),
+          const SizedBox(height: 80),
+        ],
+      ),
+    );
+  }
+
+  Widget _careerCard(int index, Map<String, dynamic> career) {
+    final isCurrent = career['isCurrent'] == true;
+    final period = isCurrent
+        ? '${career['startDate']} - 재직중'
+        : '${career['startDate']} - ${career['endDate']}';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${career['companyName']} · ${career['position'] ?? ''}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 14)),
+                const SizedBox(height: 4),
+                Text(period, style: TextStyle(color: subColor, fontSize: 12)),
+                if ((career['description'] ?? '').isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(career['description'],
+                        style: TextStyle(color: subColor, fontSize: 12)),
+                  ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => _careers.removeAt(index)),
+            child: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showAddCareer() async {
     final companyCtrl = TextEditingController();
     final positionCtrl = TextEditingController();
     final startCtrl = TextEditingController();
@@ -558,92 +505,98 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
     final descCtrl = TextEditingController();
     bool isCurrent = false;
 
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheet) => Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        builder: (ctx, setModal) => Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              left: 20, right: 20, top: 24),
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Text("경력 추가", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-                SizedBox(height: 20),
-                Text("회사명", style: _labelStyle()),
-                SizedBox(height: 6),
-                TextField(controller: companyCtrl, decoration: _inputDeco("예: 테크스타트업")),
-                SizedBox(height: 14),
-                Text("직책", style: _labelStyle()),
-                SizedBox(height: 6),
-                TextField(controller: positionCtrl, decoration: _inputDeco("예: 프론트엔드 개발자")),
-                SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("입사", style: _labelStyle()),
-                          SizedBox(height: 6),
-                          TextField(controller: startCtrl, decoration: _inputDeco("YYYY.MM")),
-                        ],
-                      ),
+                const Text('경력 추가',
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 16),
+                _label('회사명'), _field(ctrl: companyCtrl, hint: '예: 테크스타트업'),
+                const SizedBox(height: 10),
+                _label('직책'), _field(ctrl: positionCtrl, hint: '예: 프론트엔드 개발자'),
+                const SizedBox(height: 10),
+                Row(children: [
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    _label('입사'), _field(ctrl: startCtrl, hint: 'YYYY.MM'),
+                  ])),
+                  const SizedBox(width: 10),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    _label('퇴사'),
+                    AbsorbPointer(
+                      absorbing: isCurrent,
+                      child: _field(
+                          ctrl: endCtrl,
+                          hint: 'YYYY.MM',
+                          enabled: !isCurrent),
                     ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("퇴사", style: _labelStyle()),
-                          SizedBox(height: 6),
-                          TextField(controller: endCtrl, enabled: !isCurrent, decoration: _inputDeco("YYYY.MM")),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ])),
+                ]),
+                const SizedBox(height: 10),
+                Row(children: [
+                  Checkbox(
+                    value: isCurrent,
+                    activeColor: mainColor,
+                    onChanged: (v) => setModal(() => isCurrent = v ?? false),
+                  ),
+                  const Text('재직 중'),
+                ]),
+                _label('담당 업무'),
+                TextField(
+                  controller: descCtrl,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: '주요 업무와 성과를 입력해주세요',
+                    hintStyle: TextStyle(color: subColor, fontSize: 13),
+                    border: inputBorder(Colors.grey.shade300),
+                    enabledBorder: inputBorder(Colors.grey.shade300),
+                    focusedBorder: inputBorder(mainColor),
+                  ),
                 ),
-                SizedBox(height: 12),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: isCurrent,
-                      activeColor: mainColor,
-                      onChanged: (v) => setSheet(() => isCurrent = v ?? false),
-                    ),
-                    Text("재직 중", style: _labelStyle()),
-                  ],
-                ),
-                SizedBox(height: 14),
-                Text("담당 업무", style: _labelStyle()),
-                SizedBox(height: 6),
-                TextField(controller: descCtrl, maxLines: 3, decoration: _inputDeco("주요 업무와 성과를 입력해주세요")),
-                SizedBox(height: 24),
+                const SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {
                     if (companyCtrl.text.trim().isEmpty) {
-                      showMessage("회사명을 입력해주세요.");
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                          const SnackBar(content: Text('회사명을 입력해주세요.')));
                       return;
                     }
-                    setState(() {
-                      controller.careers.add(Career(
-                        companyName: companyCtrl.text.trim(),
-                        position: positionCtrl.text.trim(),
-                        startDate: startCtrl.text.trim(),
-                        endDate: endCtrl.text.trim(),
-                        isCurrent: isCurrent,
-                        description: descCtrl.text.trim(),
-                      ));
-                    });
+                    setState(() => _careers.add({
+                          'companyName': companyCtrl.text.trim(),
+                          'position': positionCtrl.text.trim(),
+                          'startDate': startCtrl.text.trim(),
+                          'endDate': endCtrl.text.trim(),
+                          'isCurrent': isCurrent,
+                          'description': descCtrl.text.trim(),
+                        }));
                     Navigator.pop(ctx);
                   },
-                  child: _saveBtn(),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                        color: mainColor,
+                        borderRadius: BorderRadius.circular(12)),
+                    child: const Text('저장',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15)),
+                  ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -652,67 +605,175 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
     );
   }
 
-  void _showAddProjectSheet() {
+  // ══════════════════════════════════════════════════════════════
+  // 프로젝트 탭
+  // ══════════════════════════════════════════════════════════════
+  Widget _projectTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          ..._projects.asMap().entries.map((e) => _projectCard(e.key, e.value)),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: _showAddProject,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                border: Border.all(color: mainColor),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text('+ 프로젝트 추가',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: mainColor, fontWeight: FontWeight.w600)),
+            ),
+          ),
+          const SizedBox(height: 80),
+        ],
+      ),
+    );
+  }
+
+  Widget _projectCard(int index, Map<String, dynamic> project) {
+    final techStack = (project['techStack'] as List<String>?) ?? [];
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(project['name'] ?? '',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 14)),
+                const SizedBox(height: 4),
+                if ((project['period'] ?? '').isNotEmpty)
+                  Text(project['period'],
+                      style: TextStyle(color: subColor, fontSize: 12)),
+                if ((project['description'] ?? '').isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(project['description'],
+                        style: TextStyle(color: subColor, fontSize: 12)),
+                  ),
+                if (techStack.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Wrap(
+                      spacing: 6,
+                      children: techStack
+                          .map((t) => Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                    color: bgColor,
+                                    borderRadius: BorderRadius.circular(6)),
+                                child: Text(t,
+                                    style: TextStyle(
+                                        fontSize: 11, color: subColor)),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => _projects.removeAt(index)),
+            child: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showAddProject() async {
     final nameCtrl = TextEditingController();
     final periodCtrl = TextEditingController();
     final descCtrl = TextEditingController();
     final techCtrl = TextEditingController();
 
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            left: 20, right: 20, top: 24),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text("프로젝트 추가", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-              SizedBox(height: 20),
-              Text("프로젝트명", style: _labelStyle()),
-              SizedBox(height: 6),
-              TextField(controller: nameCtrl, decoration: _inputDeco("예: HireUp 채용 플랫폼")),
-              SizedBox(height: 14),
-              Text("기간", style: _labelStyle()),
-              SizedBox(height: 6),
-              TextField(controller: periodCtrl, decoration: _inputDeco("예: 2024.01 - 2024.06")),
-              SizedBox(height: 14),
-              Text("설명", style: _labelStyle()),
-              SizedBox(height: 6),
-              TextField(controller: descCtrl, maxLines: 3, decoration: _inputDeco("프로젝트 내용과 본인의 역할을 입력해주세요")),
-              SizedBox(height: 14),
-              Text("사용 기술", style: _labelStyle()),
-              SizedBox(height: 6),
-              TextField(controller: techCtrl, decoration: _inputDeco("쉼표로 구분 (예: Flutter, Dart)")),
-              SizedBox(height: 24),
+              const Text('프로젝트 추가',
+                  style:
+                      TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 16),
+              _label('프로젝트명'),
+              _field(ctrl: nameCtrl, hint: '예: HireUp 채용 플랫폼'),
+              const SizedBox(height: 10),
+              _label('기간'),
+              _field(ctrl: periodCtrl, hint: '예: 2024.01 - 2024.06'),
+              const SizedBox(height: 10),
+              _label('설명'),
+              TextField(
+                controller: descCtrl,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText: '프로젝트 내용과 본인의 역할을 입력해주세요',
+                  hintStyle: TextStyle(color: subColor, fontSize: 13),
+                  border: inputBorder(Colors.grey.shade300),
+                  enabledBorder: inputBorder(Colors.grey.shade300),
+                  focusedBorder: inputBorder(mainColor),
+                ),
+              ),
+              const SizedBox(height: 10),
+              _label('사용 기술'),
+              _field(ctrl: techCtrl, hint: '쉼표로 구분 (예: Flutter, Dart)'),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
                   if (nameCtrl.text.trim().isEmpty) {
-                    showMessage("프로젝트명을 입력해주세요.");
+                    ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(
+                        content: Text('프로젝트명을 입력해주세요.')));
                     return;
                   }
                   final techStack = techCtrl.text
                       .split(',')
-                      .map((t) => t.trim())
-                      .where((t) => t.isNotEmpty)
+                      .map((e) => e.trim())
+                      .where((e) => e.isNotEmpty)
                       .toList();
-                  setState(() {
-                    controller.projects.add(Project(
-                      name: nameCtrl.text.trim(),
-                      period: periodCtrl.text.trim(),
-                      description: descCtrl.text.trim(),
-                      techStack: techStack,
-                    ));
-                  });
+                  setState(() => _projects.add({
+                        'name': nameCtrl.text.trim(),
+                        'period': periodCtrl.text.trim(),
+                        'description': descCtrl.text.trim(),
+                        'techStack': techStack,
+                      }));
                   Navigator.pop(ctx);
                 },
-                child: _saveBtn(),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                      color: mainColor,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: const Text('저장',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15)),
+                ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -720,33 +781,186 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
     );
   }
 
-  Widget _section(String title, {required Widget child, Widget? trailing}) {
+  // ══════════════════════════════════════════════════════════════
+  // 기술스택 탭
+  // ══════════════════════════════════════════════════════════════
+  Widget _skillTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(12)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('기술 스택',
+                style:
+                    TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    key: const Key('skill_field'),
+                    controller: _skillCtrl,
+                    decoration: InputDecoration(
+                      hintText: '기술을 입력하고 추가하세요 (예: ...',
+                      hintStyle: TextStyle(color: subColor, fontSize: 13),
+                      border: inputBorder(Colors.grey.shade300),
+                      enabledBorder: inputBorder(Colors.grey.shade300),
+                      focusedBorder: inputBorder(mainColor),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                    ),
+                    onSubmitted: (_) => _addSkill(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  key: const Key('skill_add_btn'),
+                  onTap: _addSkill,
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                        color: mainColor,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.add, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _skills
+                  .map((s) => Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: mainColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(s,
+                                style: TextStyle(
+                                    color: mainColor,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13)),
+                            const SizedBox(width: 6),
+                            GestureDetector(
+                              onTap: () =>
+                                  setState(() => _skills.remove(s)),
+                              child: Icon(Icons.close,
+                                  size: 14, color: mainColor),
+                            ),
+                          ],
+                        ),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _addSkill() {
+    final skill = _skillCtrl.text.trim();
+    if (skill.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('기술을 입력해주세요.')));
+      return;
+    }
+    if (_skills.contains(skill)) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('이미 추가된 기술입니다.')));
+      return;
+    }
+    setState(() {
+      _skills.add(skill);
+      _skillCtrl.clear();
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // 공통 위젯
+  // ══════════════════════════════════════════════════════════════
+  Widget _sectionCard(String title, Widget child) {
     return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
-              if (trailing != null) trailing,
-            ],
-          ),
-          SizedBox(height: 16),
+          Text(title,
+              style: const TextStyle(
+                  fontSize: 15, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
           child,
         ],
       ),
     );
   }
 
-  Widget _saveBtn() {
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(color: mainColor, borderRadius: BorderRadius.circular(12)),
-      child: Text("저장", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+  Widget _label(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Text(text,
+            style: TextStyle(
+                fontSize: 12,
+                color: subColor,
+                fontWeight: FontWeight.w500)),
+      );
+
+  Widget _field({
+    Key? key,
+    required TextEditingController ctrl,
+    String hint = '',
+    int? maxLength,
+    bool enabled = true,
+  }) {
+    return TextField(
+      key: key,
+      controller: ctrl,
+      maxLength: maxLength,
+      enabled: enabled,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: subColor, fontSize: 13),
+        border: inputBorder(Colors.grey.shade300),
+        enabledBorder: inputBorder(Colors.grey.shade300),
+        focusedBorder: inputBorder(mainColor),
+        disabledBorder: inputBorder(Colors.grey.shade200),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        counterStyle: TextStyle(color: subColor, fontSize: 11),
+      ),
+    );
+  }
+
+  Widget _dropdown() {
+    return DropdownButtonFormField<String>(
+      key: const Key('job_role_dropdown'),
+      value: _selectedJobRole,
+      hint: Text('직무 선택', style: TextStyle(color: subColor, fontSize: 13)),
+      decoration: InputDecoration(
+        border: inputBorder(Colors.grey.shade300),
+        enabledBorder: inputBorder(Colors.grey.shade300),
+        focusedBorder: inputBorder(mainColor),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      ),
+      items: _jobRoles
+          .map((r) => DropdownMenuItem(value: r, child: Text(r, style: const TextStyle(fontSize: 13))))
+          .toList(),
+      onChanged: (v) => setState(() => _selectedJobRole = v),
     );
   }
 }

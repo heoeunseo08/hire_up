@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/job_controller.dart';
 import 'package:hire_up/model/job_model.dart';
@@ -58,7 +59,7 @@ Widget tag({
       child: Text(
         text,
         style: TextStyle(
-          color: isSelect ? Colors.white : titleText,
+          color: isSelect ? Colors.white : titleColor,
         ),
       ),
     ),
@@ -110,7 +111,7 @@ Widget recommendedJobCard({
                     Text(
                       recommendedJob.companyName,
                       style: TextStyle(
-                        color: titleText,
+                        color: titleColor,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -118,7 +119,7 @@ Widget recommendedJobCard({
                     Text(
                       job.deadline,
                       style: TextStyle(
-                        color: subText,
+                        color: subColor,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -139,7 +140,7 @@ Widget recommendedJobCard({
                     Text(
                       "${recommendedJob.location} • ${recommendedJob.employmentType} • ${recommendedJob.career}",
                       style: TextStyle(
-                        color: subText,
+                        color: subColor,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -159,7 +160,7 @@ Widget recommendedJobCard({
                             : Icons.bookmark_outline_outlined,
                         color: controller.isBookmark(recommendedJob.id)
                             ? mainColor
-                            : subText,
+                            : subColor,
                         size: 30,
                       ),
                     ),
@@ -217,7 +218,7 @@ Widget jobCard({
                     Text(
                       job.companyName,
                       style: TextStyle(
-                        color: titleText,
+                        color: titleColor,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -225,7 +226,7 @@ Widget jobCard({
                     Text(
                       job.deadline,
                       style: TextStyle(
-                        color: subText,
+                        color: subColor,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -246,7 +247,7 @@ Widget jobCard({
                     Text(
                       "${job.location} • ${job.employmentType} • ${job.career}",
                       style: TextStyle(
-                        color: subText,
+                        color: subColor,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -264,7 +265,9 @@ Widget jobCard({
                         controller.isBookmark(job.id)
                             ? Icons.bookmark
                             : Icons.bookmark_outline_outlined,
-                        color: controller.isBookmark(job.id) ? mainColor : subText,
+                        color: controller.isBookmark(job.id)
+                            ? mainColor
+                            : subColor,
                         size: 30,
                       ),
                     ),
@@ -284,5 +287,72 @@ Widget jobCard({
         ],
       ),
     ),
+  );
+}
+
+Widget noLogin({
+  required BuildContext context,
+  required bool isProfile,
+  required GestureTapCallback? onLoginTap,
+}) {
+  String text = isProfile ? "프로필을" : "이력서를";
+
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      SizedBox(width: MediaQuery.widthOf(context)),
+      Container(
+        width: 65,
+        height: 65,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Color(0xfff5f6f8),
+        ),
+        child: Icon(
+          isProfile ? CupertinoIcons.person : Icons.description_outlined,
+          color: subColor,
+          size: 55,
+        ),
+      ),
+      SizedBox(height: 25),
+      Text(
+        "로그인이 필요합니다.",
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
+        ),
+      ),
+      SizedBox(height: 12),
+      Text(
+        "로그인 후 $text 확인할 수 있어요.",
+        style: TextStyle(
+          color: subColor,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      SizedBox(height: 22),
+      GestureDetector(
+        onTap: onLoginTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 68, vertical: 15),
+          decoration: BoxDecoration(
+            color: mainColor,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            "로그인",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ),
+      SizedBox(height: 10),
+    ],
   );
 }

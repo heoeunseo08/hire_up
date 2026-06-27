@@ -49,7 +49,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
         child: Center(
           child: Text(
             "관심 공고가 없습니다.",
-            style: TextStyle(color: subText, fontSize: 16),
+            style: TextStyle(color: subColor, fontSize: 16),
           ),
         ),
       );
@@ -103,7 +103,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
         Stack(
           alignment: Alignment.center,
           children: [
-            Icon(Icons.lock_outlined, size: 60, color: subText),
+            Icon(Icons.lock_outlined, size: 60, color: subColor),
             Positioned(
               bottom: 16,
               child: Container(width: 12, height: 12, color: bgColor),
@@ -123,7 +123,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
         Text(
           "로그인 후 관심공고를 확인할 수 있어요.",
           style: TextStyle(
-            color: subText,
+            color: subColor,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),

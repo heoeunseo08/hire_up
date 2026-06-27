@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hire_up/controller/resume_controller.dart';
+import 'package:hire_up/model/resume_model.dart';
 import 'package:hire_up/screens/C/resume_edit_screen.dart';
 import 'package:hire_up/utils/info.dart';
-import 'package:hire_up/utils/utils.dart';
-import 'package:hire_up/utils/widget.dart' show showLoginBottomSheet;
+import 'package:hire_up/utils/widget.dart';
 
 class ResumeScreen extends StatefulWidget {
   const ResumeScreen({super.key});
@@ -14,27 +13,89 @@ class ResumeScreen extends StatefulWidget {
 }
 
 class _ResumeScreenState extends State<ResumeScreen> {
-  final ResumeController controller = ResumeController();
-  bool isLoading = true;
+  final ResumeController _controller = ResumeController();
 
   @override
   void initState() {
     super.initState();
-    _load();
+    if (isLogin) _load();
   }
 
   Future<void> _load() async {
-    setState(() => isLoading = true);
-    if (isLogin) await controller.getResumes();
-    setState(() => isLoading = false);
+    await _controller.load();
+    if (mounted) setState(() {});
   }
 
-  Future<void> _openEdit([ResumeController? c]) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => ResumeEditScreen(controller: c ?? ResumeController())),
+  Future<void> _createResume() async {
+    await toPage(context, const ResumeEditScreen());
+    await _load();
+  }
+
+  Future<void> _editResume(ResumeModel resume) async {
+    await toPage(context, ResumeEditScreen(id: resume.id));
+    await _load();
+  }
+
+  Future<void> _showMoreOptions(ResumeModel resume) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('수정'),
+              onTap: () => Navigator.pop(context, '수정'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.star_border),
+              title: const Text('대표 이력서로 설정'),
+              onTap: () => Navigator.pop(context, '대표'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.copy_outlined),
+              title: const Text('복제'),
+              onTap: () => Navigator.pop(context, '복제'),
+            ),
+            ListTile(
+              leading:
+                  const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('삭제',
+                  style: TextStyle(color: Colors.red)),
+              onTap: () => Navigator.pop(context, '삭제'),
+            ),
+          ],
+        ),
+      ),
     );
-    _load();
+
+    if (action == null || !mounted) return;
+
+    if (action == '수정') {
+      await _editResume(resume);
+    } else if (action == '삭제') {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('이력서 삭제'),
+          content: const Text('이력서를 삭제하시겠습니까?'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('취소')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('삭제',
+                    style: TextStyle(color: Colors.red))),
+          ],
+        ),
+      );
+      if (confirm == true) {
+        _controller.delete(resume.id);
+        setState(() {});
+      }
+    }
   }
 
   @override
@@ -44,182 +105,107 @@ class _ResumeScreenState extends State<ResumeScreen> {
       appBar: AppBar(
         backgroundColor: bgColor,
         surfaceTintColor: bgColor,
-        leading: null,
-        title: Text(
-          "이력서",
-          style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w700),
+        title: const Text('이력서',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+        centerTitle: true,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: const Icon(Icons.arrow_back_ios, color: Colors.black),
         ),
         actions: isLogin
-            ? [IconButton(icon: Icon(Icons.add, size: 28), onPressed: () => _openEdit())]
+            ? [
+                IconButton(
+                  key: const Key('resume_add_btn'),
+                  icon: const Icon(Icons.add, color: Colors.black, size: 28),
+                  onPressed: _createResume,
+                )
+              ]
             : null,
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : !isLogin
-              ? _noLogin()
-              : _memberBody(),
+      body: !isLogin
+          ? noLogin(
+              context: context,
+              isProfile: false,
+              onLoginTap: () async {
+                await showLoginBottomSheet(context);
+                if (isLogin) await _load();
+                if (mounted) setState(() {});
+              },
+            )
+          : _controller.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _body(),
     );
   }
 
-  Widget _noLogin() {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(color: Color(0xfff7f8fa), shape: BoxShape.circle),
-          child: Icon(CupertinoIcons.doc_text, color: subText, size: 40),
-        ),
-        SizedBox(height: 20),
-        Text(
-          "로그인이 필요합니다.",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 20),
-        ),
-        SizedBox(height: 8),
-        Text(
-          "로그인 후 이력서를 관리할 수 있어요.",
-          style: TextStyle(color: subText, fontWeight: FontWeight.w600, fontSize: 15),
-        ),
-        SizedBox(height: 24),
-        GestureDetector(
-          onTap: () async {
-            await showLoginBottomSheet(context);
-            _load();
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 60),
-            decoration: BoxDecoration(color: mainColor, borderRadius: BorderRadius.circular(8)),
-            child: Text(
-              "로그인",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16),
-            ),
-          ),
-        ),
-        SizedBox(width: MediaQuery.widthOf(context), height: 40),
-      ],
-    );
-  }
-
-  Widget _memberBody() {
+  Widget _body() {
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 16),
           _banner(),
-          SizedBox(height: 24),
-          Text(
-            "내 이력서",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black),
-          ),
-          SizedBox(height: 16),
-          ...controller.items.map((item) => _resumeCard(item)),
-          SizedBox(height: 40),
+          const SizedBox(height: 20),
+          const Text('내 이력서',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          if (_controller.resumes.isEmpty)
+            _emptyView()
+          else
+            ..._controller.resumes.map((r) => _resumeCard(r)).toList(),
         ],
       ),
     );
   }
 
   Widget _banner() {
-    return Container(
-      padding: EdgeInsets.all(24),
-      decoration: BoxDecoration(color: mainColor, borderRadius: BorderRadius.circular(16)),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "나만의 강점을 담은\n이력서를 만들어보세요",
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  "체계적인 이력서 작성으로 합격률을 높여보세요",
-                  style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
-                ),
-                SizedBox(height: 16),
-                GestureDetector(
-                  onTap: () => _openEdit(),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      "+ 이력서 작성하기",
-                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 12),
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(Icons.description_outlined, color: Colors.white, size: 36),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _resumeCard(ResumeItem item) {
     return GestureDetector(
-      onTap: () => _openEdit(ResumeController()..loadFromItem(item)),
+      onTap: _createResume,
       child: Container(
-        margin: EdgeInsets.only(bottom: 12),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+            color: mainColor, borderRadius: BorderRadius.circular(14)),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(10)),
-              child: Icon(Icons.description_outlined, color: mainColor, size: 24),
-            ),
-            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    item.title,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "최종 수정 ${item.formattedDate}",
-                    style: TextStyle(color: subText, fontSize: 12),
-                  ),
-                  SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: item.skills.take(3).map((s) => Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(6)),
-                      child: Text(s, style: TextStyle(color: titleText, fontSize: 12)),
-                    )).toList(),
+                  const Text('나만의 강점을 담은\n이력서를 만들어보세요',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 8),
+                  const Text('체계적인 이력서 작성으로 합격률을 높여보세요',
+                      style:
+                          TextStyle(color: Colors.white70, fontSize: 12)),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(99)),
+                    child: const Text('+ 이력서 작성하기',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13)),
                   ),
                 ],
               ),
             ),
-            GestureDetector(
-              onTap: () => _moreSheet(item),
-              child: Icon(Icons.more_horiz, color: subText),
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.description_outlined,
+                  color: Colors.white, size: 30),
             ),
           ],
         ),
@@ -227,83 +213,89 @@ class _ResumeScreenState extends State<ResumeScreen> {
     );
   }
 
-  void _moreSheet(ResumeItem item) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: 8),
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(color: Color(0xffE7E7E7), borderRadius: BorderRadius.circular(99)),
-          ),
-          ListTile(
-            leading: Icon(Icons.edit_outlined),
-            title: Text("수정"),
-            onTap: () async {
-              Navigator.pop(context);
-              await _openEdit(ResumeController()..loadFromItem(item));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.copy_outlined),
-            title: Text("복제"),
-            onTap: () async {
-              Navigator.pop(context);
-              final ok = await controller.duplicateResume(item.id);
-              if (ok) {
-                showMessage("이력서를 복제했습니다.");
-                _load();
-              } else {
-                showMessage(controller.error ?? "복제에 실패했습니다.");
-              }
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.delete_outline, color: Colors.red),
-            title: Text("삭제", style: TextStyle(color: Colors.red)),
-            onTap: () {
-              Navigator.pop(context);
-              _deleteDialog(item);
-            },
-          ),
-          SizedBox(height: 16),
-        ],
+  Widget _resumeCard(ResumeModel resume) {
+    final date = resume.updatedAt.length >= 10
+        ? resume.updatedAt.substring(0, 10).replaceAll('-', '.')
+        : resume.updatedAt;
+    final displaySkills = resume.skills.take(3).toList();
+
+    return GestureDetector(
+      onTap: () => _editResume(resume),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(12)),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: mainColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.description_outlined,
+                  color: mainColor, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(resume.title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text('최종 수정 $date',
+                      style: TextStyle(color: subColor, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    children: displaySkills
+                        .map((s) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: bgColor,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(s,
+                                  style: TextStyle(
+                                      fontSize: 11, color: subColor)),
+                            ))
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _showMoreOptions(resume),
+              child: Icon(Icons.more_horiz, color: subColor),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _deleteDialog(ResumeItem item) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text("이력서 삭제"),
-        content: Text("'${item.title}' 이력서를 삭제하시겠습니까?\n삭제된 이력서는 복구할 수 없습니다."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("취소", style: TextStyle(color: subText)),
+  Widget _emptyView() => Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(Icons.description_outlined, size: 60, color: subColor),
+              const SizedBox(height: 16),
+              Text('이력서가 없습니다',
+                  style: TextStyle(
+                      color: subColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500)),
+              const SizedBox(height: 8),
+              Text('이력서를 작성해보세요',
+                  style: TextStyle(color: subColor, fontSize: 14)),
+            ],
           ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              final ok = await controller.deleteResume(item.id);
-              if (ok) {
-                showMessage("이력서를 삭제했습니다.");
-                _load();
-              } else {
-                showMessage(controller.error ?? "삭제에 실패했습니다.");
-              }
-            },
-            child: Text("삭제", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      );
 }

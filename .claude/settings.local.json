@@ -4,7 +4,9 @@
       "Bash(python3 -c ' *)",
       "PowerShell(python --version)",
       "mcp__e9c5782e-4abc-4c19-b334-c51ae653b337__notion-fetch",
-      "mcp__e9c5782e-4abc-4c19-b334-c51ae653b337__notion-create-pages"
+      "mcp__e9c5782e-4abc-4c19-b334-c51ae653b337__notion-create-pages",
+      "mcp__e9c5782e-4abc-4c19-b334-c51ae653b337__notion-search",
+      "mcp__e9c5782e-4abc-4c19-b334-c51ae653b337__notion-update-page"
     ]
   }
 }

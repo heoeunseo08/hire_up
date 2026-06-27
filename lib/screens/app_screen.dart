@@ -24,7 +24,7 @@ class _AppScreenState extends State<AppScreen> {
       HomeScreen(),
       AiScreen(),
       ResumeScreen(),
-      ProfileScreen(onTabChange: (index) => setState(() => currentIndex = index)),
+      ProfileScreen(),
     ];
   }
 
@@ -51,7 +51,7 @@ class _AppScreenState extends State<AppScreen> {
         type: BottomNavigationBarType.fixed,
         currentIndex: currentIndex,
         selectedItemColor: mainColor,
-        unselectedItemColor: subText,
+        unselectedItemColor: subColor,
         iconSize: 35,
         selectedLabelStyle: style(),
         unselectedLabelStyle: style(),

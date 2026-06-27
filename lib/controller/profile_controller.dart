@@ -1,57 +1,56 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:hire_up/model/profile_model.dart';
+import 'package:hire_up/utils/info.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../utils/info.dart';
-
 class ProfileController {
-  ProfileUser? user;
-  ProfileStats? stats;
-
-  String? profilePath;
+  bool isLoading = false;
   String? error;
 
-  Future<bool> getProfile() async {
+  ProfileUser? user;
+  ProfileStats? stats;
+  String? profileImagePath;
+
+  Future<void> load() async {
+    isLoading = true;
     error = null;
+
     try {
+      final pref = await SharedPreferences.getInstance();
+      profileImagePath = pref.getString('profile_image');
+
       final res = await http.get(
-        Uri.parse('$baseUrl/profile?userId=$userId'),
-        headers: {'Authorization': 'Bearer $tkn'},
+        Uri.parse('$baseUrl/profile').replace(queryParameters: {
+          if (!isLogin) 'userId': userId.toString(),
+        }),
+        headers: {if (isLogin) 'Authorization': 'Bearer $tkn'},
       );
+
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body)['data'];
-        user = ProfileUser.fromJson(data['user']);
-        stats = ProfileStats.fromJson(data['stats']);
-        return true;
+        final data = jsonDecode(res.body);
+        user = ProfileUser.fromJson(data['data']['user']);
+        stats = ProfileStats.fromJson(data['data']['stats']);
+      } else {
+        final data = jsonDecode(res.body);
+        error = data['errors'][0]['message'];
       }
-      return false;
     } catch (e) {
-      return false;
+      error = '네트워크 오류';
     }
+    isLoading = false;
   }
 
-  Future<void> loadProfile() async {
+  Future<void> saveProfileImage(String path) async {
     final pref = await SharedPreferences.getInstance();
-    profilePath = pref.getString('profileImage');
+    await pref.setString('profile_image', path);
+    profileImagePath = path;
   }
 
-  Future<void> pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: source);
-    if (picked == null) return;
+  Future<void> deleteProfileImage() async {
     final pref = await SharedPreferences.getInstance();
-    await pref.setString('profileImage', picked.path);
-    profilePath = picked.path;
+    await pref.remove('profile_image');
+    profileImagePath = null;
   }
-
-  Future<void> removeImage() async {
-    final pref = await SharedPreferences.getInstance();
-    await pref.remove('profileImage');
-  }
-
-  File? get imageFile => profilePath != null ? File(profilePath!) : null;
 }

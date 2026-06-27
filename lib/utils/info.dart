@@ -12,8 +12,8 @@ bool get isLogin => tkn.isNotEmpty;
 
 Color mainColor = Color(0xff3366FF);
 Color bgColor = Color(0xffF5F5F7);
-Color titleText = Color(0xff666666);
-Color subText = Color(0xff999999);
+Color titleColor = Color(0xff666666);
+Color subColor = Color(0xff999999);
 
 Color dDayColor(String state) {
   if (state == 'OPEN') return Color(0xff3366FF);

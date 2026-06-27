@@ -392,7 +392,7 @@ class _AiPlayScreenState extends State<AiPlayScreen> {
         children: [
           Text(
             "질문 ${currentIndex + 1} / $total",
-            style: TextStyle(color: subText, fontWeight: FontWeight.w500),
+            style: TextStyle(color: subColor, fontWeight: FontWeight.w500),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -425,13 +425,13 @@ class _AiPlayScreenState extends State<AiPlayScreen> {
             // 상태 텍스트
             Text(
               isAnswering ? "재생 완료" : "면접관 질문 재생 중...",
-              style: TextStyle(color: subText, fontSize: 13),
+              style: TextStyle(color: subColor, fontSize: 13),
             ),
             const SizedBox(height: 6),
             // 재생 시간
             Text(
               "${_formatTime(position)} / ${_formatTime(duration)}",
-              style: TextStyle(color: subText, fontSize: 13),
+              style: TextStyle(color: subColor, fontSize: 13),
             ),
             const SizedBox(height: 16),
             // 파형 (전체 너비)

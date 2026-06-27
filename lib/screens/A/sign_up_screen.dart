@@ -74,13 +74,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     prefixIcon: prefix,
     suffixIcon: suffix,
     hintText: hint,
-    hintStyle: TextStyle(color: subText, fontWeight: FontWeight.w600, fontSize: 16),
+    hintStyle: TextStyle(color: subColor, fontWeight: FontWeight.w600, fontSize: 16),
   );
 
   Widget _lockIcon() => Stack(
     alignment: Alignment.center,
     children: [
-      Icon(Icons.lock_outline_rounded, color: subText),
+      Icon(Icons.lock_outline_rounded, color: subColor),
       Positioned(bottom: 18, child: Container(color: Colors.white, width: 4, height: 5)),
     ],
   );
@@ -89,7 +89,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     onTap: onTap,
     child: Icon(
       isObscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-      color: subText,
+      color: subColor,
     ),
   );
 
@@ -99,7 +99,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(color: titleText, fontSize: 14, fontWeight: FontWeight.w500)),
+          Text(label, style: TextStyle(color: titleColor, fontSize: 14, fontWeight: FontWeight.w500)),
           SizedBox(height: 10),
           field,
           if (hint != null) ...[SizedBox(height: 6), hint],
@@ -174,7 +174,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 6),
               Text(
                 "HireHp 계정을 만들어\n취업 준비를 시작해보세요!",
-                style: TextStyle(color: titleText, fontSize: 16, fontWeight: FontWeight.w400),
+                style: TextStyle(color: titleColor, fontSize: 16, fontWeight: FontWeight.w400),
               ),
             ],
           ),
@@ -193,7 +193,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             controller: emailController,
             onChanged: (_) => setState(() {}),
             cursorColor: mainColor,
-            decoration: _fieldDecoration(hint: '이메일을 입력해주세요', prefix: Icon(Icons.mail_outline_outlined, color: subText)),
+            decoration: _fieldDecoration(hint: '이메일을 입력해주세요', prefix: Icon(Icons.mail_outline_outlined, color: subColor)),
           ),
         ),
         _labeledField('비밀번호',
@@ -209,7 +209,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
           ),
           hint: Text("8자 이상, 대소문자, 숫자, 특수문자 포함",
-            style: TextStyle(color: subText, fontSize: 14, fontWeight: FontWeight.w400)),
+            style: TextStyle(color: subColor, fontSize: 14, fontWeight: FontWeight.w400)),
         ),
         _labeledField('비밀번호 확인',
           TextFormField(
@@ -229,16 +229,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
             controller: nameController,
             onChanged: (_) => setState(() {}),
             cursorColor: mainColor,
-            decoration: _fieldDecoration(hint: '이름을 입력해주세요', prefix: Icon(Icons.person_outline, color: subText)),
+            decoration: _fieldDecoration(hint: '이름을 입력해주세요', prefix: Icon(Icons.person_outline, color: subColor)),
           ),
         ),
         _labeledField('휴대폰 번호',
           Row(
             children: [
               Expanded(child: _phoneField(phoneController1, 3, '010')),
-              Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("-", style: TextStyle(fontWeight: FontWeight.w700, color: titleText, fontSize: 14))),
+              Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("-", style: TextStyle(fontWeight: FontWeight.w700, color: titleColor, fontSize: 14))),
               Expanded(child: _phoneField(phoneController2, 4, '0000')),
-              Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("-", style: TextStyle(fontWeight: FontWeight.w700, color: titleText, fontSize: 14))),
+              Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("-", style: TextStyle(fontWeight: FontWeight.w700, color: titleColor, fontSize: 14))),
               Expanded(child: _phoneField(phoneController3, 4, '0000')),
             ],
           ),
@@ -284,7 +284,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("인증번호", style: TextStyle(color: titleText, fontSize: 14, fontWeight: FontWeight.w500)),
+          Text("인증번호", style: TextStyle(color: titleColor, fontSize: 14, fontWeight: FontWeight.w500)),
           SizedBox(height: 10),
           Row(
             children: [
@@ -365,7 +365,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("이미 계정이 있으신가요? ", style: TextStyle(color: subText, fontWeight: FontWeight.w600, fontSize: 16)),
+        Text("이미 계정이 있으신가요? ", style: TextStyle(color: subColor, fontWeight: FontWeight.w600, fontSize: 16)),
         GestureDetector(
           onTap: () { Navigator.pop(context); showLoginBottomSheet(context); },
           child: Text("로그인", style: TextStyle(color: mainColor, fontWeight: FontWeight.w600, fontSize: 16)),

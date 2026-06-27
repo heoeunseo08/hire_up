@@ -102,17 +102,17 @@ class _AiScreenState extends State<AiScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: select ? mainColor : subText),
+                  border: Border.all(color: select ? mainColor : subColor),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(jobIcons[index], color: select ? mainColor : subText),
+                    Icon(jobIcons[index], color: select ? mainColor : subColor),
                     SizedBox(width: 8),
                     Text(
                       jobList[index],
                       style: TextStyle(
-                        color: select ? Colors.black : subText,
+                        color: select ? Colors.black : subColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -160,7 +160,7 @@ class _AiScreenState extends State<AiScreen> {
                     Text(
                       ages[index],
                       style: TextStyle(
-                        color: select ? Colors.white : subText,
+                        color: select ? Colors.white : subColor,
                         fontWeight: FontWeight.w400,
                         fontSize: 12,
                       ),
@@ -194,12 +194,12 @@ class _AiScreenState extends State<AiScreen> {
             children: [
               Row(
                 children: [
-                  Icon(typeIcons[typeSelectIndex], color: subText),
+                  Icon(typeIcons[typeSelectIndex], color: subColor),
                   SizedBox(width: 14),
                   Text(typeTitles[typeSelectIndex]),
                 ],
               ),
-              Icon(Icons.keyboard_arrow_down_outlined, color: subText),
+              Icon(Icons.keyboard_arrow_down_outlined, color: subColor),
             ],
           ),
         ),
@@ -289,7 +289,7 @@ class _AiScreenState extends State<AiScreen> {
                                     Text(
                                       typeSubs[index],
                                       style: TextStyle(
-                                        color: subText,
+                                        color: subColor,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -341,7 +341,7 @@ class _AiScreenState extends State<AiScreen> {
             Text(
               of ?? '',
               style: TextStyle(
-                color: subText,
+                color: subColor,
                 fontWeight: FontWeight.w500,
                 fontSize: 14,
               ),
@@ -352,7 +352,7 @@ class _AiScreenState extends State<AiScreen> {
         Text(
           sub,
           style: TextStyle(
-            color: subText,
+            color: subColor,
             fontWeight: FontWeight.w500,
             fontSize: 14,
           ),
@@ -412,7 +412,7 @@ class _AiScreenState extends State<AiScreen> {
                     Text(
                       "직무별 맞춤 질문으로\n실전 감각을 키울 수 있어요.",
                       style: TextStyle(
-                        color: subText,
+                        color: subColor,
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
                       ),
@@ -493,18 +493,18 @@ class _AiScreenState extends State<AiScreen> {
       child: Row(
         mainAxisAlignment: .center,
         children: [
-          Icon(CupertinoIcons.time, color: subText,size: 25),
+          Icon(CupertinoIcons.time, color: subColor,size: 25),
           SizedBox(width: 10),
           Text(
             "이전 면접 기록 보기",
             style: TextStyle(
-              color: subText,
+              color: subColor,
               fontWeight: FontWeight.w500,
               fontSize: 16,
             ),
           ),
           SizedBox(width: 10),
-          Icon(Icons.arrow_forward_ios_rounded, color: subText,size: 25),
+          Icon(Icons.arrow_forward_ios_rounded, color: subColor,size: 25),
         ],
       ),
     ),

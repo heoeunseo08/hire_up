@@ -103,7 +103,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                             : Icons.bookmark_outline_outlined,
                         color: controller.isBookmark(jobModel!.id)
                             ? mainColor
-                            : subText,
+                            : subColor,
                         size: 28,
                       ),
                     ),
@@ -166,14 +166,14 @@ class _PostDetailScreenState extends State<PostDetailScreen>
       children: [
         cirButton(
           icon: Icons.arrow_back_ios_new_outlined,
-          color: titleText,
+          color: titleColor,
           onTap: () => Navigator.pop(context),
         ),
         Row(
           children: [
             cirButton(
               icon: Icons.ios_share,
-              color: titleText,
+              color: titleColor,
               onTap: () => share(),
             ),
             SizedBox(width: 15),
@@ -181,7 +181,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
               icon: controller.isBookmark(jobModel!.id)
                   ? Icons.bookmark
                   : Icons.bookmark_outline_outlined,
-              color: titleText,
+              color: titleColor,
               onTap: () async {
                 if (!isLogin) {
                   await showLoginBottomSheet(context);
@@ -271,7 +271,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                           Text(
                             jobModel!.companyName,
                             style: TextStyle(
-                              color: titleText,
+                              color: titleColor,
                               fontWeight: FontWeight.w500,
                               fontSize: 16,
                             ),
@@ -279,7 +279,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                           SizedBox(width: 10),
                           Icon(
                             Icons.arrow_forward_ios_outlined,
-                            color: subText,
+                            color: subColor,
                             size: 20,
                           ),
                         ],
@@ -419,14 +419,14 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                         children: [
                           Icon(
                             CupertinoIcons.briefcase,
-                            color: subText,
+                            color: subColor,
                             size: 20,
                           ),
                           SizedBox(width: 10),
                           Text(
                             "직무",
                             style: TextStyle(
-                              color: subText,
+                              color: subColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -458,14 +458,14 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                         children: [
                           Icon(
                             Icons.description_outlined,
-                            color: subText,
+                            color: subColor,
                             size: 20,
                           ),
                           SizedBox(width: 10),
                           Text(
                             "고용형태",
                             style: TextStyle(
-                              color: subText,
+                              color: subColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -497,14 +497,14 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                         children: [
                           Icon(
                             CupertinoIcons.calendar,
-                            color: subText,
+                            color: subColor,
                             size: 20,
                           ),
                           SizedBox(width: 10),
                           Text(
                             "마감일",
                             style: TextStyle(
-                              color: subText,
+                              color: subColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -542,7 +542,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
             widgets: Text(
               jobModel!.positionIntro,
               style: TextStyle(
-                color: subText,
+                color: subColor,
                 fontWeight: FontWeight.w500,
                 fontSize: 16,
               ),
@@ -584,7 +584,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                 SizedBox(width: 10),
                 Text(
                   jobModel!.tasks[index],
-                  style: TextStyle(color: titleText, fontSize: 14),
+                  style: TextStyle(color: titleColor, fontSize: 14),
                 ),
               ],
             ),
@@ -621,7 +621,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                 SizedBox(width: 10),
                 Text(
                   jobModel!.qualifications[index],
-                  style: TextStyle(color: titleText, fontSize: 14),
+                  style: TextStyle(color: titleColor, fontSize: 14),
                 ),
               ],
             ),

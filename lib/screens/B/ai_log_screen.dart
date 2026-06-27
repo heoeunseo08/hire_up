@@ -129,19 +129,19 @@ class _AiLogScreenState extends State<AiLogScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.mic_none, size: 60, color: subText),
+            Icon(Icons.mic_none, size: 60, color: subColor),
             const SizedBox(height: 16),
             Text(
               "면접 기록이 없습니다",
               style: TextStyle(
-                  color: subText,
+                  color: subColor,
                   fontSize: 16,
                   fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
             Text(
               "AI 모의 면접을 시작해보세요",
-              style: TextStyle(color: subText, fontSize: 14),
+              style: TextStyle(color: subColor, fontSize: 14),
             ),
           ],
         ),
@@ -207,7 +207,7 @@ class _AiLogScreenState extends State<AiLogScreen> {
                   const SizedBox(height: 6),
                   Text(
                     log['date'] as String,
-                    style: TextStyle(color: subText, fontSize: 12),
+                    style: TextStyle(color: subColor, fontSize: 12),
                   ),
                 ],
               ),
@@ -220,13 +220,13 @@ class _AiLogScreenState extends State<AiLogScreen> {
                       ? _formatTime(position)
                       : _formatTime(log['duration'] as int),
                   style: TextStyle(
-                    color: isThisSelected ? mainColor : subText,
+                    color: isThisSelected ? mainColor : subColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 4),
-                Icon(Icons.mic, color: subText, size: 16),
+                Icon(Icons.mic, color: subColor, size: 16),
               ],
             ),
           ],
@@ -244,7 +244,7 @@ class _AiLogScreenState extends State<AiLogScreen> {
         child: Text(
           text,
           style: TextStyle(
-              color: subText,
+              color: subColor,
               fontSize: 11,
               fontWeight: FontWeight.w500),
         ),

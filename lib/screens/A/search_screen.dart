@@ -143,7 +143,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           Text(
                             job.companyName,
                             style: TextStyle(
-                              color: titleText,
+                              color: titleColor,
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                             ),
@@ -161,7 +161,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               Icon(
                                 Icons.arrow_forward_ios,
-                                color: subText,
+                                color: subColor,
                                 size: 20,
                               ),
                             ],
@@ -171,7 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               Text(
                                 "${job.location}·${job.employmentType}",
                                 style: TextStyle(
-                                  color: subText,
+                                  color: subColor,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 14,
                                 ),
@@ -229,7 +229,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: Text(
                       e,
                       style: TextStyle(
-                        color: titleText,
+                        color: titleColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -266,7 +266,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: Text(
                   "전체 삭제",
                   style: TextStyle(
-                    color: titleText,
+                    color: titleColor,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
@@ -304,7 +304,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         Text(
                           e,
                           style: TextStyle(
-                            color: titleText,
+                            color: titleColor,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -317,7 +317,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           },
                           child: Icon(
                             Icons.close_outlined,
-                            color: subText,
+                            color: subColor,
                             size: 20,
                           ),
                         ),
@@ -338,7 +338,7 @@ class _SearchScreenState extends State<SearchScreen> {
       children: [
         Icon(
           Icons.search_rounded,
-          color: subText,
+          color: subColor,
           size: 70,
           weight: 1000,
         ),
@@ -346,7 +346,7 @@ class _SearchScreenState extends State<SearchScreen> {
         Text(
           "검색 결과가 없습니다",
           style: TextStyle(
-            color: titleText,
+            color: titleColor,
             fontWeight: FontWeight.w400,
             fontSize: 19,
           ),
@@ -354,7 +354,7 @@ class _SearchScreenState extends State<SearchScreen> {
         SizedBox(height: 12),
         Text(
           "다른 키워드로 검색해보세요",
-          style: TextStyle(color: subText, fontSize: 14),
+          style: TextStyle(color: subColor, fontSize: 14),
         ),
         SizedBox(
           height: 40,
@@ -395,7 +395,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
                 prefixIcon: Icon(
                   Icons.search,
-                  color: subText,
+                  color: subColor,
                   size: 25,
                 ),
 
@@ -409,7 +409,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: Icon(
                           Icons.close,
                           size: 25,
-                          color: subText,
+                          color: subColor,
                         ),
                       )
                     : null,
@@ -417,7 +417,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 hint: Text(
                   "직무, 회사, 키워드 검색",
                   style: TextStyle(
-                    color: subText,
+                    color: subColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),

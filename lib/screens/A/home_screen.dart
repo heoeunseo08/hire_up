@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.white,
               offset: Offset(-6, 0),
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-              iconColor: titleText,
+              iconColor: titleColor,
               iconSize: 35,
               itemBuilder: (context) => _sortLabels.values
                   .map(
@@ -177,12 +177,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Row(
           children: [
-            Icon(Icons.search, color: subText),
+            Icon(Icons.search, color: subColor),
             SizedBox(width: 16),
             Text(
               "직무, 회사, 키워드 검색",
               style: TextStyle(
-                color: subText,
+                color: subColor,
                 fontSize: 17,
                 fontWeight: FontWeight.w400,
               ),
@@ -221,13 +221,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: subText,
+                      color: subColor,
                     ),
                   ),
                   Icon(
                     Icons.arrow_forward_ios_outlined,
                     size: 20,
-                    color: subText,
+                    color: subColor,
                   ),
                 ],
               ),
@@ -287,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     : Icons.bookmark_outline_outlined,
                                 color: controller.isBookmark(job.id)
                                     ? mainColor
-                                    : subText,
+                                    : subColor,
                                 size: 30,
                               ),
                             ),
@@ -320,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           "${job.location} • ${job.employmentType}",
                           style: TextStyle(
-                            color: subText,
+                            color: subColor,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -376,7 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               "안녕하세요, ",
               style: TextStyle(
-                color: subText,
+                color: subColor,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
