@@ -86,6 +86,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
     return Column(
       children: [
         TextFormField(
+          key: const Key('login_email_field'),
           controller: emailController,
           decoration: InputDecoration(
             fillColor: Color(0xffF7F8FA),
@@ -102,6 +103,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
         ),
         SizedBox(height: 16),
         TextFormField(
+          key: const Key('login_password_field'),
           controller: passwordController,
           obscureText: isObscureText,
           decoration: InputDecoration(
@@ -174,6 +176,7 @@ class _LoginBottomSheetState extends State<LoginBottomSheet> {
         }
       },
       child: Container(
+        key: const Key('login_submit_btn'),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(vertical: 14),
         width: MediaQuery.widthOf(context),

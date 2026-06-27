@@ -59,6 +59,7 @@ class _AppScreenState extends State<AppScreen> {
         items: List.generate(
           4,
           (index) => BottomNavigationBarItem(
+            key: Key(['home_tab', 'ai_tab', 'resume_tab', 'profile_tab'][index]),
             icon: iconList[index],
             label: labelList[index],
           ),

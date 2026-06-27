@@ -140,6 +140,7 @@ class _ResumeScreenState extends State<ResumeScreen> {
 
   Widget _body() {
     return SingleChildScrollView(
+      key: const Key('resume_list_scroll'),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,6 +221,7 @@ class _ResumeScreenState extends State<ResumeScreen> {
     final displaySkills = resume.skills.take(3).toList();
 
     return GestureDetector(
+      key: Key('resume_card_${resume.id}'),
       onTap: () => _editResume(resume),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),

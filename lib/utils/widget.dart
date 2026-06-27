@@ -337,6 +337,7 @@ Widget noLogin({
       GestureDetector(
         onTap: onLoginTap,
         child: Container(
+          key: const Key('no_login_btn'),
           padding: EdgeInsets.symmetric(horizontal: 68, vertical: 15),
           decoration: BoxDecoration(
             color: mainColor,

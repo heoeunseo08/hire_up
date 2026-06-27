@@ -129,10 +129,10 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
           indicatorColor: mainColor,
           labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           tabs: const [
-            Tab(text: '기본 정보'),
-            Tab(text: '경력'),
-            Tab(text: '프로젝트'),
-            Tab(text: '기술 스택'),
+            Tab(key: Key('tab_basic'), text: '기본 정보'),
+            Tab(key: Key('tab_career'), text: '경력'),
+            Tab(key: Key('tab_project'), text: '프로젝트'),
+            Tab(key: Key('tab_skill'), text: '기술 스택'),
           ],
         ),
       ),
@@ -149,6 +149,7 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: GestureDetector(
+            key: const Key('save_bottom_btn'),
             onTap: _save,
             child: Container(
               width: double.infinity,
@@ -303,6 +304,7 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
               const Text('학력',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
               GestureDetector(
+                key: const Key('education_add_btn'),
                 onTap: _showAddEducation,
                 child: Text('+ 추가',
                     style: TextStyle(
@@ -373,9 +375,9 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
               const Text('학력 추가',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
-              _label('학교명'), _field(ctrl: schoolCtrl, hint: '예: 한국대학교'),
+              _label('학교명'), _field(key: const Key('school_name_field'), ctrl: schoolCtrl, hint: '예: 한국대학교'),
               const SizedBox(height: 10),
-              _label('전공'), _field(ctrl: majorCtrl, hint: '예: 컴퓨터공학과'),
+              _label('전공'), _field(key: const Key('major_field'), ctrl: majorCtrl, hint: '예: 컴퓨터공학과'),
               const SizedBox(height: 10),
               _label('학위'), _field(ctrl: degreeCtrl, hint: '예: 학사'),
               const SizedBox(height: 10),
@@ -390,6 +392,7 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
               ]),
               const SizedBox(height: 20),
               GestureDetector(
+                key: const Key('education_save_btn'),
                 onTap: () {
                   if (schoolCtrl.text.trim().isEmpty) {
                     ScaffoldMessenger.of(ctx).showSnackBar(
@@ -438,6 +441,7 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
           ..._careers.asMap().entries.map((e) => _careerCard(e.key, e.value)),
           const SizedBox(height: 12),
           GestureDetector(
+            key: const Key('career_add_btn'),
             onTap: _showAddCareer,
             child: Container(
               width: double.infinity,
@@ -523,9 +527,9 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
                     style: TextStyle(
                         fontSize: 18, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 16),
-                _label('회사명'), _field(ctrl: companyCtrl, hint: '예: 테크스타트업'),
+                _label('회사명'), _field(key: const Key('company_name_field'), ctrl: companyCtrl, hint: '예: 테크스타트업'),
                 const SizedBox(height: 10),
-                _label('직책'), _field(ctrl: positionCtrl, hint: '예: 프론트엔드 개발자'),
+                _label('직책'), _field(key: const Key('position_field'), ctrl: positionCtrl, hint: '예: 프론트엔드 개발자'),
                 const SizedBox(height: 10),
                 Row(children: [
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -566,6 +570,7 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
                 ),
                 const SizedBox(height: 20),
                 GestureDetector(
+                  key: const Key('career_save_btn'),
                   onTap: () {
                     if (companyCtrl.text.trim().isEmpty) {
                       ScaffoldMessenger.of(ctx).showSnackBar(
@@ -616,6 +621,7 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
           ..._projects.asMap().entries.map((e) => _projectCard(e.key, e.value)),
           const SizedBox(height: 12),
           GestureDetector(
+            key: const Key('project_add_btn'),
             onTap: _showAddProject,
             child: Container(
               width: double.infinity,
@@ -718,7 +724,7 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
                       TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
               _label('프로젝트명'),
-              _field(ctrl: nameCtrl, hint: '예: HireUp 채용 플랫폼'),
+              _field(key: const Key('project_name_field'), ctrl: nameCtrl, hint: '예: HireUp 채용 플랫폼'),
               const SizedBox(height: 10),
               _label('기간'),
               _field(ctrl: periodCtrl, hint: '예: 2024.01 - 2024.06'),
@@ -737,9 +743,10 @@ class _ResumeEditScreenState extends State<ResumeEditScreen>
               ),
               const SizedBox(height: 10),
               _label('사용 기술'),
-              _field(ctrl: techCtrl, hint: '쉼표로 구분 (예: Flutter, Dart)'),
+              _field(key: const Key('project_tech_field'), ctrl: techCtrl, hint: '쉼표로 구분 (예: Flutter, Dart)'),
               const SizedBox(height: 20),
               GestureDetector(
+                key: const Key('project_save_btn'),
                 onTap: () {
                   if (nameCtrl.text.trim().isEmpty) {
                     ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(
